@@ -11,9 +11,6 @@ import { toolRegistry } from './registry/tool-registry';
 import { createLogger } from '@/lib/logger';
 
 // Module Tools (Server-Only wegen Prisma/Nodemailer)
-import { inboxModuleTools } from '@/modules/inbox/agent/tools';
-import { calendarModuleTools } from '@/modules/calendar/agent/tools';
-import { browserModuleTools } from '@/modules/browser/agent/tools';
 import { appModuleTools } from './tools/app-module-tools';
 import { memoryModuleTools } from './tools/memory-tools';
 import { labDebugTools } from './tools/lab-debug-tools';
@@ -38,15 +35,6 @@ export function initializeToolRegistry(): void {
   }
   
   log.info('Initialisiere Tool Registry (Server)...');
-  
-  // Inbox Tools registrieren
-  toolRegistry.register(inboxModuleTools);
-  
-  // Calendar Tools registrieren
-  toolRegistry.register(calendarModuleTools);
-  
-  // Browser Tools registrieren
-  toolRegistry.register(browserModuleTools);
   
   // App Tools registrieren
   toolRegistry.register(appModuleTools);

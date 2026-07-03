@@ -12,7 +12,6 @@ import { useModuleRegistry } from '@/lib/modules/registry';
 import { isExternalAppModule, isWebAppModule } from '@/lib/external-apps';
 import { getModuleById } from '@/lib/marketplace/mock-data';
 import { defaultBackgrounds } from '@/lib/store/app-store';
-import { useProjectsStore } from '@/app/lab/builder/stores/projects-store';
 import type { Module } from '@/types';
 
 // --------------------------------------------
@@ -140,7 +139,7 @@ export function BaseManager() {
   const cleanupMissingModules = useBaseStore((state) => state.cleanupMissingModules);
 
   const registryModules = useModuleRegistry((state) => state.modules);
-  const builderProjects = useProjectsStore((state) => state.projects);
+  const builderProjects: Array<{ id: string; status: string; moduleInfo?: { id: string } }> = [];
   const modules = useMemo(
     () => registryModules.filter((module) => module.id !== 'agents' && module.id !== 'chat'),
     [registryModules]

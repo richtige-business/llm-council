@@ -22,9 +22,3 @@ export {
   sendSystemNotification,
 } from './notification-bus';
 
-// Inbox-Integration
-export {
-  useInboxNotifications,
-  InboxNotificationProvider,
-} from './use-inbox-notifications';
-

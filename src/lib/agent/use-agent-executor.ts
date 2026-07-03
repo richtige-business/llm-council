@@ -28,12 +28,8 @@ interface PendingHumanConfirmation {
 }
 
 // Module Action Handlers
-import { inboxActionHandler } from '@/modules/inbox/agent/handler';
-import { calendarActionHandler } from '@/modules/calendar/agent/handler';
-import { browserActionHandler } from '@/modules/browser/agent/handler';
 import { appActionHandler } from './handlers/app-handler';
 import { agentsActionHandler } from './handlers/agents-handler';
-import { labActionHandler } from './handlers/lab-handler';
 import { settingsActionHandler } from './handlers/settings-handler';
 import { marketplaceActionHandler } from './handlers/marketplace-handler';
 
@@ -123,12 +119,8 @@ export function useAgentExecutor() {
       log.debug('Registriere Action Handler...');
       
       // Registriere alle Handler
-      actionRegistry.register(inboxActionHandler);
-      actionRegistry.register(calendarActionHandler);
-      actionRegistry.register(browserActionHandler);
       actionRegistry.register(appActionHandler);
       actionRegistry.register(agentsActionHandler);
-      actionRegistry.register(labActionHandler);
       actionRegistry.register(settingsActionHandler);
       actionRegistry.register(marketplaceActionHandler);
       

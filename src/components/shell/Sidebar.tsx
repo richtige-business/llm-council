@@ -14,10 +14,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import * as LucideIcons from 'lucide-react';
 import { 
-  Home, 
-  Blocks, 
-  FlaskConical, 
-  Library, 
+  Home,
+  Blocks,
   X,
   Settings,
   MessageSquare,
@@ -188,8 +186,6 @@ export function Sidebar() {
   // --------------------------------------------
   
   const systemNavItems = [
-    { href: '/library', icon: Library, label: t('shell.library') },
-    { href: '/lab', icon: FlaskConical, label: 'Lab' },
     { href: '/settings', icon: Settings, label: t('shell.settings') },
   ];
 

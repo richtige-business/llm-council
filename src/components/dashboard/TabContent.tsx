@@ -19,9 +19,6 @@ import { useModuleRegistry } from '@/lib/modules';
 // Hier werden die echten Modul-Ansichten importiert
 // --------------------------------------------
 
-import { CalendarPage } from '@/modules/calendar/components';
-import { InboxPage } from '@/modules/inbox/components';
-import { BrowserPage } from '@/modules/browser/components';
 import { AgentsPage } from '@/modules/agents/components';
 import { CloudBrowserView, isWebAppModule } from '@/lib/external-apps';
 import { DashboardFileViewer } from './DashboardFileViewer';
@@ -31,9 +28,6 @@ const DASHBOARD_FILE_PREFIX = 'dashboard-file:';
 
   // Mapping von Modul-IDs zu ihren Hauptkomponenten
 const MODULE_COMPONENTS: Record<string, React.ComponentType> = {
-  calendar: CalendarPage,
-  inbox: InboxPage,
-  browser: BrowserPage,
   // Web-Apps (webapp-*) und externe Apps (extapp-*) siehe unten
 };
 

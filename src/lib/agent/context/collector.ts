@@ -7,8 +7,6 @@
 // ============================================
 
 import type { AgentContext, ModuleContext } from '../types';
-import { getInboxContext, getInboxContextPrompt } from '@/modules/inbox/agent/context';
-import { getCalendarContext, getCalendarContextPrompt } from '@/modules/calendar/agent/context';
 import { getMemoryPromptBlock } from '@/lib/services/memory-service';
 import { getUser, DEFAULT_USER_ID } from '@/lib/services/user-service';
 
@@ -38,18 +36,11 @@ function getDayOfWeek(): string {
 // --------------------------------------------
 
 export async function collectAgentContext(): Promise<AgentContext> {
-  // Kontext aus allen Modulen sammeln (parallel)
-  const [inboxContext, calendarContext, user] = await Promise.all([
-    getInboxContext(),
-    Promise.resolve(getCalendarContext()),
-    getUser(DEFAULT_USER_ID).catch(() => null),
-  ]);
-  
-  const modules: Record<string, ModuleContext> = {
-    inbox: inboxContext,
-    calendar: calendarContext,
-  };
-  
+  // User-Daten laden
+  const user = await getUser(DEFAULT_USER_ID).catch(() => null);
+
+  const modules: Record<string, ModuleContext> = {};
+
   return {
     app: {
       activeModule: null,
@@ -108,15 +99,8 @@ export async function buildSystemPrompt(userMessage?: string): Promise<string> {
   let contextBlock = '';
   if (userMessage) {
     contextBlock = await enhancePromptWithContext('', userMessage);
-  } else {
-    // Wenn keine Message: Alle Kontexte laden (Fallback)
-    const [inboxPrompt, calendarPrompt] = await Promise.all([
-      getInboxContextPrompt(),
-      Promise.resolve(getCalendarContextPrompt()),
-    ]);
-    contextBlock = `${calendarPrompt}\n\n${inboxPrompt}`;
   }
-  
+
   // Prompt zusammenbauen
   const parts = [basePrompt];
   
@@ -211,21 +195,7 @@ export async function enhancePromptWithContext(
   basePrompt: string,
   userMessage: string
 ): Promise<string> {
-  let enhanced = basePrompt;
-  
-  // Wenn es um E-Mails geht, lade Inbox-Kontext
-  const isEmailRelated = /mail|email|postfach|inbox|sende|schick|nachricht/i.test(userMessage);
-  if (isEmailRelated) {
-    const inboxPrompt = await getInboxContextPrompt();
-    enhanced += `\n\n${inboxPrompt}`;
-  }
-  
-  // Wenn es um Termine geht, lade Kalender-Kontext
-  const isCalendarRelated = /termin|meeting|kalender|event|morgen|heute|woche/i.test(userMessage);
-  if (isCalendarRelated) {
-    const calendarPrompt = getCalendarContextPrompt();
-    enhanced += `\n\n${calendarPrompt}`;
-  }
-  
+  const enhanced = basePrompt;
+
   return enhanced;
 }
