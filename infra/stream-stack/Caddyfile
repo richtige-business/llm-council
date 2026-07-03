@@ -1,0 +1,15 @@
+# ============================================
+# Caddyfile - Reverse Proxy fuer LifeOS Stream Stack
+# ============================================
+
+{$APP_DOMAIN} {
+  encode gzip zstd
+
+  @viewer path /stream* /stream/*
+  reverse_proxy @viewer stream-manager:{$APP_RUNNER_PORT}
+
+  @streams path /api/streams* /api/streams/* /api/external-apps* /api/external-apps/*
+  reverse_proxy @streams lifeos-app:{$APP_PORT}
+
+  reverse_proxy lifeos-app:{$APP_PORT}
+}

@@ -1,0 +1,11 @@
+{
+  "id": "todo-list",
+  "name": "Todo Liste",
+  "description": "Eine einfache und intuitive Todo-Liste zur Verwaltung von Aufgaben",
+  "version": "1.0.0",
+  "category": "productivity",
+  "icon": "CheckSquare",
+  "author": "LifeOS",
+  "dependencies": [],
+  "permissions": ["storage"]
+}

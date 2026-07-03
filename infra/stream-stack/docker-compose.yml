@@ -1,0 +1,115 @@
+# ============================================
+# docker-compose.yml - Stream Stack Deployment
+#
+# Zweck: Startet LifeOS App + stream-manager-service + Reverse Proxy
+# Verwendet von: infra/stream-stack/README.md
+# ============================================
+
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: lifeos-postgres
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    expose:
+      - "5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - stream_net
+
+  lifeos-app:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    container_name: lifeos-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - PORT=${APP_PORT}
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+      - NEXT_PUBLIC_STREAM_MANAGER_SERVICE_URL=http://stream-manager:${APP_RUNNER_PORT}
+      - NEXT_PUBLIC_APP_RUNNER_SERVICE_URL=http://stream-manager:${APP_RUNNER_PORT}
+      - NEXT_PUBLIC_STREAM_SERVICE_URL=${NEXT_PUBLIC_STREAM_SERVICE_URL}
+    expose:
+      - "${APP_PORT}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      stream-manager:
+        condition: service_started
+    networks:
+      - stream_net
+
+  stream-manager:
+    build:
+      context: ../../app-runner-service
+      dockerfile: Dockerfile
+    container_name: stream-manager
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - HOST=0.0.0.0
+      - PORT=${APP_RUNNER_PORT}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - STREAM_MANAGER_DOCKER_NETWORK=lifeos-stream-net
+      - STREAM_MANAGER_INTERNAL_HOST=host.docker.internal
+      - STREAM_MANAGER_RUNTIME_PATH=/opt/lifeos-runtime
+      - STREAM_MANAGER_RUNTIME_VOLUME_NAME=lifeos-stream-runtime
+      - STREAM_MANAGER_CHILD_RUNTIME_PATH=/opt/lifeos-runtime
+      - STREAM_WEBRTC_PUBLIC_IP=${STREAM_WEBRTC_PUBLIC_IP}
+      - STREAM_PUBLIC_BASE_URL=${FRONTEND_URL}
+    expose:
+      - "${APP_RUNNER_PORT}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - stream_runtime:/opt/lifeos-runtime
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - stream_net
+
+  caddy:
+    image: caddy:2
+    container_name: lifeos-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    env_file:
+      - .env
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - lifeos-app
+    networks:
+      - stream_net
+
+volumes:
+  caddy_data:
+  caddy_config:
+  postgres_data:
+  stream_runtime:
+    name: lifeos-stream-runtime
+
+networks:
+  stream_net:
+    name: lifeos-stream-net

@@ -1,0 +1,247 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - button "Module öffnen (⌘B)" [ref=e5]:
+      - img [ref=e6]
+    - main [ref=e8]:
+      - generic [ref=e9]:
+        - generic:
+          - generic [ref=e82]:
+            - generic [ref=e83]:
+              - button [ref=e84]:
+                - img [ref=e85]
+              - button [ref=e88]:
+                - img [ref=e89]
+            - img [ref=e99]
+            - paragraph [ref=e102]: Livus
+          - generic [ref=e104]:
+            - generic [ref=e105]:
+              - button [ref=e106]:
+                - img [ref=e107]
+              - button [ref=e110]:
+                - img [ref=e111]
+            - img [ref=e121]
+            - paragraph [ref=e124]: Business English
+          - generic [ref=e126]:
+            - generic [ref=e127]:
+              - button [ref=e128]:
+                - img [ref=e129]
+              - button [ref=e132]:
+                - img [ref=e133]
+            - img [ref=e143]
+            - paragraph [ref=e146]: succo
+        - button "Anpassen" [ref=e11]:
+          - img [ref=e12]
+          - generic [ref=e17]: Anpassen
+        - generic [ref=e22]:
+          - button "Postfach" [ref=e24] [cursor=pointer]:
+            - img [ref=e26]
+            - generic: Postfach
+          - button "Kalender" [ref=e30] [cursor=pointer]:
+            - img [ref=e32]
+            - generic: Kalender
+          - button "Browser" [ref=e35] [cursor=pointer]:
+            - img [ref=e37]
+            - generic: Browser
+          - button "Agents" [ref=e41] [cursor=pointer]:
+            - img [ref=e43]
+            - generic: Agents
+        - generic [ref=e47]:
+          - heading "Guten Abend, User." [level=1] [ref=e48]
+          - paragraph [ref=e49]: Was möchtest du heute erreichen?
+        - generic [ref=e148]:
+          - generic [ref=e149]:
+            - generic [ref=e150]:
+              - button "Schließen" [ref=e151]:
+                - img [ref=e152]
+              - button "Minimieren" [ref=e155]:
+                - img [ref=e156]
+              - button "Maximieren" [ref=e157]:
+                - img [ref=e158]
+            - generic [ref=e160]:
+              - img [ref=e161]
+              - generic [ref=e164]: Agents
+            - button "Neuen Tab hinzufügen" [ref=e166]:
+              - img [ref=e167]
+          - generic [ref=e170]:
+            - generic [ref=e171]:
+              - generic [ref=e173]:
+                - button "Agent Hub" [ref=e174]:
+                  - img [ref=e175]
+                  - heading "Agent Hub" [level=3] [ref=e179]
+                - generic [ref=e180]:
+                  - button "Neuen Agent erstellen" [active] [ref=e181]:
+                    - img [ref=e182]
+                  - button "Gruppenchat erstellen" [ref=e183]:
+                    - img [ref=e184]
+                  - button "Agenten-Panel einklappen" [ref=e189]:
+                    - img [ref=e190]
+              - generic [ref=e192]:
+                - generic [ref=e193]:
+                  - button "Agents" [ref=e194]
+                  - button "Gruppen" [ref=e195]
+                  - button "Council" [ref=e196]
+                - generic [ref=e198]:
+                  - button "Chat" [ref=e199]:
+                    - img [ref=e200]
+                  - button "Aufgaben" [ref=e202]:
+                    - img [ref=e203]
+                  - button "Einstellungen" [ref=e206]:
+                    - img [ref=e207]
+              - generic [ref=e210]:
+                - generic [ref=e211]:
+                  - paragraph [ref=e212]: Systemagents
+                  - generic [ref=e213]:
+                    - generic [ref=e214]:
+                      - button "Einklappen" [ref=e215]:
+                        - img [ref=e216]
+                      - button [ref=e218]:
+                        - img [ref=e220]
+                      - button "Intelligence Über-Agent – koordiniert alle Module" [ref=e233]:
+                        - paragraph [ref=e234]: Intelligence
+                        - paragraph [ref=e235]: Über-Agent – koordiniert alle Module
+                      - button "Subagent unter Intelligence erstellen" [ref=e236]:
+                        - img [ref=e237]
+                    - generic [ref=e240]:
+                      - button [ref=e242]:
+                        - img [ref=e244]
+                      - button "Kalender Agent" [ref=e247]:
+                        - paragraph [ref=e248]: Kalender Agent
+                      - button "Subagent unter Kalender Agent erstellen" [ref=e249]:
+                        - img [ref=e250]
+                    - generic [ref=e253]:
+                      - button [ref=e255]:
+                        - img [ref=e257]
+                      - button "Postfach Agent" [ref=e261]:
+                        - paragraph [ref=e262]: Postfach Agent
+                      - button "Subagent unter Postfach Agent erstellen" [ref=e263]:
+                        - img [ref=e264]
+                    - generic [ref=e267]:
+                      - button [ref=e269]:
+                        - img [ref=e271]
+                      - button "Browser Agent" [ref=e275]:
+                        - paragraph [ref=e276]: Browser Agent
+                      - button "Subagent unter Browser Agent erstellen" [ref=e277]:
+                        - img [ref=e278]
+                    - generic [ref=e281]:
+                      - button [ref=e283]:
+                        - img [ref=e285]
+                      - button "Aufgaben Agent" [ref=e289]:
+                        - paragraph [ref=e290]: Aufgaben Agent
+                      - button "Subagent unter Aufgaben Agent erstellen" [ref=e291]:
+                        - img [ref=e292]
+                    - generic [ref=e295]:
+                      - button [ref=e297]:
+                        - img [ref=e299]
+                      - button "Training Agent" [ref=e306]:
+                        - paragraph [ref=e307]: Training Agent
+                      - button "Subagent unter Training Agent erstellen" [ref=e308]:
+                        - img [ref=e309]
+                - generic [ref=e310]:
+                  - paragraph [ref=e311]: Eigene Agents
+                  - paragraph [ref=e312]: Noch keine eigenen Agents vorhanden.
+            - generic [ref=e313]:
+              - generic [ref=e314]:
+                - generic [ref=e315]:
+                  - paragraph [ref=e318]: Intelligence
+                  - button "Agent-Einstellungen" [ref=e319]:
+                    - img [ref=e320]
+                - generic [ref=e323]:
+                  - button "Neuer Chat" [ref=e324]:
+                    - img [ref=e325]
+                    - text: Neuer Chat
+                  - button "Neuer Ordner" [ref=e327]:
+                    - img [ref=e328]
+                  - button "Chat-History einklappen" [ref=e330]:
+                    - img [ref=e331]
+              - generic [ref=e334]:
+                - heading "Chats" [level=3] [ref=e335]
+                - generic [ref=e336]:
+                  - generic [ref=e337]:
+                    - button "Neuer Chat 20:23" [ref=e338]:
+                      - generic [ref=e339]:
+                        - img [ref=e340]
+                        - generic [ref=e342]:
+                          - paragraph [ref=e343]: Neuer Chat
+                          - paragraph [ref=e344]: 20:23
+                    - button [ref=e347]:
+                      - img [ref=e348]
+                  - generic [ref=e352]:
+                    - button "Neuer Chat 20:23" [ref=e353]:
+                      - generic [ref=e354]:
+                        - img [ref=e355]
+                        - generic [ref=e357]:
+                          - paragraph [ref=e358]: Neuer Chat
+                          - paragraph [ref=e359]: 20:23
+                    - button [ref=e362]:
+                      - img [ref=e363]
+            - generic [ref=e369]:
+              - generic [ref=e370]:
+                - img [ref=e372]
+                - heading "Neuer Chat" [level=2] [ref=e376]:
+                  - generic [ref=e377]: Neuer Chat
+                - button "Teilnehmer hinzufügen" [ref=e378]:
+                  - img [ref=e379]
+                - button "Agent Memory" [ref=e380]:
+                  - img [ref=e381]
+              - generic [ref=e391]:
+                - link "Zurück zum Dashboard" [ref=e392] [cursor=pointer]:
+                  - /url: /
+                  - img [ref=e393]
+                - generic [ref=e397]:
+                  - textbox "Frag mich etwas oder gib einen Befehl..." [ref=e398]
+                  - generic [ref=e399]:
+                    - generic [ref=e400]:
+                      - button "Bild anhängen" [ref=e401]:
+                        - img [ref=e402]
+                      - button "Datei anhängen" [ref=e406]:
+                        - img [ref=e407]
+                      - button "Ordner anhängen" [ref=e409]:
+                        - img [ref=e410]
+                      - button "Web" [ref=e413]:
+                        - img [ref=e414]
+                        - text: Web
+                      - button "Deep" [ref=e417]:
+                        - img [ref=e418]
+                        - text: Deep
+                      - button "Agent" [ref=e421]:
+                        - img [ref=e422]
+                        - text: Agent
+                    - generic [ref=e425]:
+                      - button "0/128k" [ref=e427]:
+                        - img [ref=e428]
+                        - generic [ref=e436]: 0/128k
+                      - 'button "OpenAI: GPT-4o" [ref=e439]':
+                        - img [ref=e440]
+                        - generic [ref=e443]: "OpenAI: GPT-4o"
+                        - img [ref=e444]
+                - generic [ref=e446]:
+                  - button "Sprachmodus (kommt bald)" [disabled] [ref=e447]:
+                    - img [ref=e448]
+                  - button [disabled] [ref=e451]:
+                    - img [ref=e452]
+    - button "Chat öffnen" [ref=e53] [cursor=pointer]:
+      - img [ref=e56]
+      - img [ref=e63]
+  - button "Open Next.js Dev Tools" [ref=e76] [cursor=pointer]:
+    - img [ref=e77]
+  - alert [ref=e80]
+  - dialog [ref=e463]:
+    - generic [ref=e465]:
+      - generic [ref=e466]:
+        - generic [ref=e467]:
+          - button "Neuer Agent" [ref=e468]
+          - button "Gruppenchat" [ref=e469]
+        - button [ref=e470]:
+          - img [ref=e471]
+      - generic [ref=e474]:
+        - textbox "Agent-Name..." [ref=e475]
+        - textbox "Rolle/Beschreibung (optional)..." [ref=e476]
+        - combobox [ref=e477]:
+          - option "Unter Intelligence (Standard)" [selected]
+          - 'option "Als Subagent von: Intelligence"'
+          - 'option "Als Subagent von: Kalender Agent"'
+          - 'option "Als Subagent von: Postfach Agent"'
+          - 'option "Als Subagent von: Browser Agent"'
+          - 'option "Als Subagent von: Aufgaben Agent"'
+          - 'option "Als Subagent von: Training Agent"'
+        - button "Agent erstellen" [ref=e478]

@@ -1,0 +1,1306 @@
+// ============================================
+// Prisma Schema für LifeOS
+// 
+// Zweck: Definiert die Datenbankstruktur für alle Module
+// Verwendet von: API Routes, Server-Komponenten
+// ============================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================
+// POSTFACH-MODUL
+// Tabellen für E-Mail-Konten und Nachrichten
+// ============================================
+
+// --------------------------------------------
+// AccountLabel - Labels für E-Mail-Konten
+// z.B. "Privat", "Business", "Education"
+// --------------------------------------------
+
+model AccountLabel {
+  id          String   @id @default(cuid())
+  
+  // Name des Labels (eindeutig)
+  name        String   @unique
+  
+  // Farbe als HEX-Code
+  color       String   @default("#6366f1")
+  
+  // Icon-Name oder Emoji (optional)
+  icon        String?
+  
+  // Ist das Label vordefiniert? (kann nicht gelöscht werden)
+  isSystem    Boolean  @default(false)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Beziehungen
+  accounts    EmailAccount[]
+  
+  @@index([isSystem])
+}
+
+// --------------------------------------------
+// EmailAccount - Verbundene E-Mail-Konten
+// Speichert OAuth-Tokens oder IMAP-Credentials
+// --------------------------------------------
+
+model EmailAccount {
+  id            String   @id @default(cuid())
+  
+  // Provider-Typ: "gmail", "outlook", "imap"
+  provider      String
+  
+  // E-Mail-Adresse des Kontos
+  email         String   @unique
+  
+  // Anzeigename (optional, z.B. "Arbeit" oder "Privat")
+  displayName   String?
+  
+  // Konto-Label (Privat, Business, Education, etc.)
+  labelId       String?
+  label         AccountLabel? @relation(fields: [labelId], references: [id], onDelete: SetNull)
+  
+  // OAuth-Tokens (AES-256 verschlüsselt gespeichert)
+  accessToken   String?
+  refreshToken  String?
+  tokenExpiry   DateTime?
+  
+  // IMAP-spezifische Felder (für GMX, Web.de, etc.)
+  imapHost      String?
+  imapPort      Int?
+  smtpHost      String?
+  smtpPort      Int?
+  imapPassword  String?  // Verschlüsselt gespeichert
+  
+  // Status des Kontos
+  isActive      Boolean  @default(true)
+  lastSyncAt    DateTime?
+  syncError     String?
+  
+  // Timestamps
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Beziehungen
+  messages        Message[]
+  linkedContacts  ContactAccount[]  // Kontakte die mit diesem Account verknüpft sind
+  
+  @@index([provider])
+  @@index([isActive])
+  @@index([labelId])
+}
+
+// --------------------------------------------
+// Contact - Automatisch erkannte Kontakte
+// Werden bei beidseitigem Mailverkehr erstellt
+// Ein Kontakt kann mehrere E-Mail-Adressen und Accounts haben
+// --------------------------------------------
+
+model Contact {
+  id            String   @id @default(cuid())
+  
+  // Haupt-E-Mail (für Abwärtskompatibilität, optional)
+  // Die primäre E-Mail wird aus ContactEmail mit isPrimary=true ermittelt
+  email         String?
+  
+  // Anzeigename (aus E-Mail-Header extrahiert oder manuell)
+  name          String?
+  
+  // Kategorie: "private", "business", "unknown"
+  // Wird durch KI oder Regeln klassifiziert
+  category      String   @default("unknown")
+  
+  // Anzahl der Nachrichten mit diesem Kontakt
+  messageCount  Int      @default(0)
+  
+  // Hat der User den Kontakt manuell bestätigt/bearbeitet?
+  isConfirmed   Boolean  @default(false)
+  
+  // ============================================
+  // ERWEITERTE KONTAKT-FELDER
+  // ============================================
+  
+  // Firma/Organisation
+  company       String?
+  
+  // Telefonnummer (Haupt-Telefon)
+  phone         String?
+  
+  // Notizen zum Kontakt
+  notes         String?  @db.Text
+  
+  // Avatar-URL (Profilbild)
+  avatarUrl     String?
+  
+  // Ist der Kontakt als Favorit markiert?
+  isFavorite    Boolean  @default(false)
+  
+  // Zusätzliche Metadaten (JSON)
+  // z.B. { "title": "CEO", "linkedin": "...", "twitter": "..." }
+  metadata      String?
+  
+  // Timestamps
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // ============================================
+  // BEZIEHUNGEN
+  // ============================================
+  
+  // Nachrichten von/an diesen Kontakt
+  messages      Message[]
+  
+  // Mehrere E-Mail-Adressen pro Kontakt
+  emails        ContactEmail[]
+  
+  // Verknüpfung zu E-Mail-Konten (in welchen Accounts erscheint dieser Kontakt)
+  linkedAccounts ContactAccount[]
+  
+  @@index([category])
+  @@index([messageCount])
+  @@index([isFavorite])
+  @@index([name])
+  @@index([email])
+}
+
+// --------------------------------------------
+// ContactEmail - E-Mail-Adressen eines Kontakts
+// Ein Kontakt kann mehrere E-Mail-Adressen haben
+// --------------------------------------------
+
+model ContactEmail {
+  id          String   @id @default(cuid())
+  
+  // Verknüpfung zum Kontakt
+  contactId   String
+  contact     Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  
+  // E-Mail-Adresse
+  email       String
+  
+  // Label für die E-Mail (z.B. "Privat", "Arbeit", "Andere")
+  label       String   @default("Andere")
+  
+  // Ist dies die primäre/Haupt-E-Mail?
+  isPrimary   Boolean  @default(false)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  
+  @@unique([email])  // Jede E-Mail nur einmal global
+  @@index([contactId])
+  @@index([email])
+}
+
+// --------------------------------------------
+// ContactAccount - Verknüpfung zwischen Kontakt und E-Mail-Konto
+// Zeigt in welchen Accounts ein Kontakt vorkommt
+// --------------------------------------------
+
+model ContactAccount {
+  id          String   @id @default(cuid())
+  
+  // Verknüpfung zum Kontakt
+  contactId   String
+  contact     Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  
+  // Verknüpfung zum E-Mail-Account
+  accountId   String
+  account     EmailAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  
+  // Wann wurde die Verknüpfung erstellt?
+  createdAt   DateTime @default(now())
+  
+  // Anzahl der Nachrichten zwischen diesem Kontakt und Account
+  messageCount Int     @default(0)
+  
+  // Letzte Interaktion
+  lastInteraction DateTime?
+  
+  @@unique([contactId, accountId])
+  @@index([contactId])
+  @@index([accountId])
+}
+
+// --------------------------------------------
+// Message - Nachrichten (E-Mails + System)
+// Alle Nachrichten werden hier gecached
+// --------------------------------------------
+
+model Message {
+  id            String   @id @default(cuid())
+  
+  // Optionale Verknüpfung zu E-Mail-Konto
+  // NULL für System-Benachrichtigungen
+  accountId     String?
+  account       EmailAccount? @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  
+  // Optionale Verknüpfung zu Kontakt
+  contactId     String?
+  contact       Contact? @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  
+  // Nachrichtentyp: "email" oder "system"
+  type          String   @default("email")
+  
+  // Inhalt der Nachricht
+  subject       String
+  body          String   @db.Text
+  bodyHtml      String?  @db.Text  // HTML-Version für E-Mails
+  snippet       String?  // Vorschau-Text (erste ~100 Zeichen)
+  
+  // Absender-Informationen
+  sender        String   // E-Mail-Adresse oder Modul-Name
+  senderName    String?  // Anzeigename
+  
+  // Empfänger (für E-Mails)
+  recipients    String?  // JSON-Array von E-Mail-Adressen
+  cc            String?  // JSON-Array
+  bcc           String?  // JSON-Array
+  
+  // Status-Flags
+  isRead        Boolean  @default(false)
+  isStarred     Boolean  @default(false)
+  isArchived    Boolean  @default(false)
+  isDeleted     Boolean  @default(false)
+  
+  // Ordner: "inbox", "sent", "drafts", "trash", "spam"
+  folder        String   @default("inbox")
+  
+  // Labels/Tags (JSON-Array)
+  labels        String?
+  
+  // Externe IDs für Sync
+  externalId    String?  // Gmail/Outlook Message-ID
+  threadId      String?  // Für Konversations-Gruppierung
+  
+  // System-Benachrichtigungs-spezifisch
+  source        String?  // Modul-Name z.B. "calendar", "tasks"
+  actionUrl     String?  // Link zum Öffnen der Quelle
+  priority      String   @default("normal")  // "low", "normal", "high"
+  
+  // ============================================
+  // KI-ANALYSE FELDER (NEU)
+  // ============================================
+  
+  // Kategorie: "private", "business", "unknown"
+  // Durch KI-Analyse bestimmt
+  category      String   @default("unknown")
+  
+  // Dringlichkeit: 1 (niedrig) bis 5 (sehr dringend)
+  // Durch KI-Analyse bestimmt
+  urgency       Int      @default(3)
+  
+  // Wurde ein Terminvorschlag in dieser Nachricht erkannt?
+  hasCalendarAction     Boolean @default(false)
+  
+  // Wurde der Terminvorschlag bereits verarbeitet (akzeptiert/abgelehnt)?
+  calendarActionProcessed Boolean @default(false)
+  
+  // Anhänge (JSON-Array mit Metadaten)
+  attachments   String?
+  hasAttachments Boolean @default(false)
+  
+  // Timestamps
+  receivedAt    DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Beziehungen
+  calendarSuggestions CalendarSuggestion[]
+  messageLabels       MessageLabel[]  // NEU: Benutzerdefinierte LifeOS-Labels
+  
+  @@index([accountId])
+  @@index([contactId])
+  @@index([type])
+  @@index([folder])
+  @@index([isRead])
+  @@index([receivedAt])
+  @@index([externalId])
+  @@index([threadId])
+  @@index([category])
+  @@index([urgency])
+  @@index([hasCalendarAction])
+}
+
+// --------------------------------------------
+// NotificationSubscription - Event-Abonnements
+// Welche Module senden System-Benachrichtigungen?
+// --------------------------------------------
+
+model NotificationSubscription {
+  id            String   @id @default(cuid())
+  
+  // Quelle der Benachrichtigung
+  source        String   // z.B. "calendar", "tasks"
+  eventType     String   // z.B. "reminder", "due_soon"
+  
+  // Ist diese Subscription aktiv?
+  isEnabled     Boolean  @default(true)
+  
+  // Einstellungen (JSON)
+  settings      String?  // z.B. {"minutesBefore": 15}
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@unique([source, eventType])
+}
+
+// ============================================
+// LIFEOS LABELS (Eigene Labels, unabhängig vom E-Mail-Anbieter)
+// ============================================
+
+// --------------------------------------------
+// InboxLabel - Benutzerdefinierte Labels
+// Können jeder Nachricht zugeordnet werden
+// --------------------------------------------
+
+model InboxLabel {
+  id          String   @id @default(cuid())
+  
+  // Name des Labels (z.B. "Wichtig", "Projekt X", "Rechnungen")
+  name        String
+  
+  // Farbe als HEX-Code (z.B. "#FF5733")
+  color       String   @default("#6366f1")
+  
+  // Icon-Name (optional, z.B. "star", "briefcase", "receipt")
+  icon        String?
+  
+  // Sortierreihenfolge in der UI
+  sortOrder   Int      @default(0)
+  
+  // Ist das Label ein System-Label? (kann nicht gelöscht werden)
+  isSystem    Boolean  @default(false)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Beziehung zu Nachrichten (many-to-many)
+  messages    MessageLabel[]
+  
+  @@unique([name])
+  @@index([sortOrder])
+}
+
+// --------------------------------------------
+// MessageLabel - Verknüpfungstabelle
+// Verbindet Nachrichten mit Labels (n:m)
+// --------------------------------------------
+
+model MessageLabel {
+  id          String   @id @default(cuid())
+  
+  // Verknüpfung zur Nachricht
+  messageId   String
+  message     Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  
+  // Verknüpfung zum Label
+  labelId     String
+  label       InboxLabel @relation(fields: [labelId], references: [id], onDelete: Cascade)
+  
+  // Wann wurde das Label zugeordnet?
+  assignedAt  DateTime @default(now())
+  
+  @@unique([messageId, labelId])
+  @@index([messageId])
+  @@index([labelId])
+}
+
+// ============================================
+// KALENDER-TERMINVORSCHLÄGE
+// KI-erkannte Termine aus E-Mails
+// ============================================
+
+// --------------------------------------------
+// CalendarSuggestion - Erkannte Terminvorschläge
+// Werden aus E-Mail-Inhalten durch KI extrahiert
+// --------------------------------------------
+
+model CalendarSuggestion {
+  id              String   @id @default(cuid())
+  
+  // Verknüpfung zur Quell-Nachricht
+  messageId       String
+  message         Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  
+  // Extrahierte Termin-Informationen
+  suggestedTitle  String           // z.B. "Meeting mit Max"
+  suggestedDate   DateTime?        // Erkanntes Datum
+  suggestedTime   String?          // Erkannte Uhrzeit als String (z.B. "14:00")
+  suggestedEndTime String?         // Optionales Ende (z.B. "15:30")
+  
+  // Erkannter Meeting-Link (Zoom, Teams, Google Meet, etc.)
+  meetingLink     String?
+  
+  // Zusätzliche Details aus der E-Mail
+  location        String?          // Physischer Ort falls genannt
+  description     String? @db.Text // Zusammenfassung des Kontexts
+  
+  // Status des Vorschlags
+  // "pending" = wartet auf User-Entscheidung
+  // "accepted" = Termin wurde erstellt
+  // "declined" = User hat abgelehnt
+  // "expired" = Termin liegt in der Vergangenheit
+  status          String   @default("pending")
+  
+  // Falls akzeptiert: ID des erstellten Kalender-Events
+  createdEventId  String?
+  
+  // Konfidenz der KI-Erkennung (0.0 - 1.0)
+  confidence      Float    @default(0.5)
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  processedAt     DateTime? // Wann wurde akzeptiert/abgelehnt
+  
+  @@index([messageId])
+  @@index([status])
+  @@index([suggestedDate])
+}
+
+// ============================================
+// AI TRAINING CENTER
+// Modelle, Datasets, Training Jobs und Sandbox
+// ============================================
+
+// --------------------------------------------
+// TrainingModel - Trainierte LoRA-Adapter
+// Repräsentiert ein fine-getuntes Modell
+// --------------------------------------------
+
+model TrainingModel {
+  id            String   @id @default(cuid())
+  
+  // Anzeigename (z.B. "Support-Bot v2")
+  name          String
+  
+  // Beschreibung des Modells
+  description   String?  @db.Text
+  
+  // Basis-Modell auf dem trainiert wurde
+  // z.B. "llama-3-8b", "mistral-7b", "sdxl"
+  baseModel     String
+  
+  // Modell-Typ: "text", "image", "video"
+  type          String   @default("text")
+  
+  // Status: "draft", "training", "ready", "failed", "archived"
+  status        String   @default("draft")
+  
+  // Pfad zu den LoRA-Weights (lokal oder Cloud-URL)
+  loraPath      String?
+  
+  // Trainings-Konfiguration (JSON)
+  // z.B. { "learningRate": 0.0001, "epochs": 3, "loraRank": 16 }
+  config        String?
+  
+  // Modell-Metriken nach Training (JSON)
+  // z.B. { "loss": 0.23, "accuracy": 0.89 }
+  metrics       String?
+  
+  // Icon für die UI (Lucide Icon Name)
+  icon          String   @default("Brain")
+  
+  // Farbe für die UI (HEX)
+  color         String   @default("#8b5cf6")
+  
+  // Timestamps
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Beziehungen
+  trainingJobs    TrainingJob[]
+  sandboxSessions SandboxSession[]
+  
+  @@index([type])
+  @@index([status])
+  @@index([baseModel])
+}
+
+// --------------------------------------------
+// Dataset - Trainings-Datensätze
+// Container für Trainings-Daten
+// --------------------------------------------
+
+model Dataset {
+  id            String   @id @default(cuid())
+  
+  // Anzeigename (z.B. "Kundenservice E-Mails")
+  name          String
+  
+  // Beschreibung
+  description   String?  @db.Text
+  
+  // Datensatz-Typ: "sft", "dpo", "classification"
+  // sft = Supervised Fine-Tuning (input/output Paare)
+  // dpo = Direct Preference Optimization (chosen/rejected)
+  // classification = Kategorisierung
+  type          String   @default("sft")
+  
+  // Quelle: "upload", "synthetic", "library"
+  source        String   @default("upload")
+  
+  // Anzahl der Datensätze
+  rowCount      Int      @default(0)
+  
+  // Status: "draft", "processing", "ready", "error"
+  status        String   @default("draft")
+  
+  // Schema-Definition (JSON)
+  // Beschreibt die Felder in den Rows
+  schema        String?
+  
+  // Metadaten (JSON)
+  // z.B. { "language": "de", "domain": "customer-service" }
+  metadata      String?
+  
+  // Wurde PII-Scan durchgeführt?
+  piiScanned    Boolean  @default(false)
+  
+  // PII-Scan Ergebnis (JSON mit Warnungen)
+  piiWarnings   String?
+  
+  // Timestamps
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Beziehungen
+  rows          DatasetRow[]
+  trainingJobs  TrainingJob[]
+  
+  @@index([type])
+  @@index([status])
+  @@index([source])
+}
+
+// --------------------------------------------
+// DatasetRow - Einzelne Trainings-Beispiele
+// Ein Datenpunkt im Dataset
+// --------------------------------------------
+
+model DatasetRow {
+  id            String   @id @default(cuid())
+  
+  // Verknüpfung zum Dataset
+  datasetId     String
+  dataset       Dataset  @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+  
+  // ============================================
+  // SFT-Felder (Supervised Fine-Tuning)
+  // ============================================
+  
+  // Eingabe-Prompt
+  input         String   @db.Text
+  
+  // Erwartete Ausgabe
+  output        String?  @db.Text
+  
+  // ============================================
+  // DPO-Felder (Direct Preference Optimization)
+  // ============================================
+  
+  // Bevorzugte Antwort (für DPO)
+  chosenOutput  String?  @db.Text
+  
+  // Abgelehnte Antwort (für DPO)
+  rejectedOutput String? @db.Text
+  
+  // ============================================
+  // Classification-Felder
+  // ============================================
+  
+  // Label/Kategorie (für Classification)
+  label         String?
+  
+  // ============================================
+  // Metadaten
+  // ============================================
+  
+  // Ist dieser Eintrag ein "Golden Example"?
+  isGolden      Boolean  @default(false)
+  
+  // Wurde dieser Eintrag synthetisch generiert?
+  isSynthetic   Boolean  @default(false)
+  
+  // Qualitäts-Score (0-1, von AI Council bewertet)
+  qualityScore  Float?
+  
+  // Zusätzliche Metadaten (JSON)
+  metadata      String?
+  
+  // Timestamps
+  createdAt     DateTime @default(now())
+  
+  @@index([datasetId])
+  @@index([isGolden])
+  @@index([isSynthetic])
+  @@index([label])
+}
+
+// --------------------------------------------
+// TrainingJob - Trainings-Aufträge
+// Repräsentiert einen Training-Lauf
+// --------------------------------------------
+
+model TrainingJob {
+  id            String   @id @default(cuid())
+  
+  // Verknüpfung zum Modell
+  modelId       String
+  model         TrainingModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  
+  // Verknüpfung zum Dataset
+  datasetId     String
+  dataset       Dataset  @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+  
+  // Trainings-Methode: "sft", "dpo"
+  method        String   @default("sft")
+  
+  // Status: "queued", "running", "completed", "failed", "cancelled"
+  status        String   @default("queued")
+  
+  // Fortschritt (0-100)
+  progress      Int      @default(0)
+  
+  // Aktuelle Epoche
+  currentEpoch  Int      @default(0)
+  
+  // Gesamt-Epochen
+  totalEpochs   Int      @default(3)
+  
+  // Trainings-Konfiguration (JSON)
+  // z.B. { "batchSize": 4, "learningRate": 0.0001, "loraRank": 16 }
+  config        String?
+  
+  // Trainings-Logs (JSON Array)
+  logs          String?  @db.Text
+  
+  // Finale Metriken (JSON)
+  metrics       String?
+  
+  // Fehler-Nachricht (falls fehlgeschlagen)
+  error         String?  @db.Text
+  
+  // Geschätzte Kosten (in Cents)
+  estimatedCost Int      @default(0)
+  
+  // Tatsächliche Kosten (in Cents)
+  actualCost    Int      @default(0)
+  
+  // GPU-Provider: "mock", "modal", "replicate", "runpod"
+  gpuProvider   String   @default("mock")
+  
+  // Externe Job-ID (vom GPU-Provider)
+  externalJobId String?
+  
+  // Timestamps
+  startedAt     DateTime?
+  completedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([modelId])
+  @@index([datasetId])
+  @@index([status])
+  @@index([gpuProvider])
+}
+
+// --------------------------------------------
+// SandboxSession - Sandbox-Test-Sitzungen
+// Für risikofreies Testen und Datensammeln
+// --------------------------------------------
+
+model SandboxSession {
+  id            String   @id @default(cuid())
+  
+  // Verknüpfung zum Modell (optional, kann auch Basis-Modell sein)
+  modelId       String?
+  model         TrainingModel? @relation(fields: [modelId], references: [id], onDelete: SetNull)
+  
+  // Basis-Modell falls kein trainiertes Modell
+  baseModel     String   @default("claude-3-haiku")
+  
+  // Session-Name
+  name          String?
+  
+  // Status: "active", "paused", "completed", "expired"
+  status        String   @default("active")
+  
+  // Mock-Daten Konfiguration (JSON)
+  // z.B. { "contacts": [...], "emails": [...] }
+  mockData      String?  @db.Text
+  
+  // System-Prompt für diese Session
+  systemPrompt  String?  @db.Text
+  
+  // Anzahl der gesammelten Feedbacks
+  feedbackCount Int      @default(0)
+  
+  // Letzte Aktivität
+  lastActivityAt DateTime @default(now())
+  
+  // Auto-Freeze nach X Minuten Inaktivität
+  timeoutMinutes Int     @default(5)
+  
+  // Timestamps
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Beziehungen
+  prompts       SandboxPrompt[]
+  
+  @@index([modelId])
+  @@index([status])
+  @@index([lastActivityAt])
+}
+
+// --------------------------------------------
+// SandboxPrompt - Einzelne Prompts in der Sandbox
+// Speichert Input, Output und Chain-of-Thought
+// --------------------------------------------
+
+model SandboxPrompt {
+  id            String   @id @default(cuid())
+  
+  // Verknüpfung zur Session
+  sessionId     String
+  session       SandboxSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  // User-Input (der Prompt)
+  input         String   @db.Text
+  
+  // Modell-Output (die Antwort)
+  output        String?  @db.Text
+  
+  // Chain-of-Thought / Reasoning (JSON)
+  // z.B. { "steps": ["Searching...", "Found 3 results", "Generating..."] }
+  chainOfThought String? @db.Text
+  
+  // Tool-Calls die gemacht wurden (JSON Array)
+  toolCalls     String?  @db.Text
+  
+  // Output-Typ: "text", "email", "image", "json", "code"
+  outputType    String   @default("text")
+  
+  // Timestamps
+  createdAt     DateTime @default(now())
+  
+  // Beziehung zu Feedback
+  feedback      SandboxFeedback?
+  
+  @@index([sessionId])
+  @@index([createdAt])
+}
+
+// --------------------------------------------
+// SandboxFeedback - Bewertungen (Swipes)
+// Human-in-the-loop Feedback für DPO Training
+// --------------------------------------------
+
+model SandboxFeedback {
+  id            String   @id @default(cuid())
+  
+  // Verknüpfung zum Prompt
+  promptId      String   @unique
+  prompt        SandboxPrompt @relation(fields: [promptId], references: [id], onDelete: Cascade)
+  
+  // Bewertung: "good", "bad", "edited"
+  rating        String
+  
+  // Editierte/korrigierte Ausgabe (Human Correction)
+  // Das ist GOLD für DPO Training!
+  editedOutput  String?  @db.Text
+  
+  // Notizen/Kommentar zum Feedback
+  notes         String?  @db.Text
+  
+  // Wurde dieses Feedback bereits für Training verwendet?
+  usedForTraining Boolean @default(false)
+  
+  // In welchem Training Job wurde es verwendet?
+  usedInJobId   String?
+  
+  // Timestamps
+  createdAt     DateTime @default(now())
+  
+  @@index([rating])
+  @@index([usedForTraining])
+}
+
+// --------------------------------------------
+// BudgetLimit - Kosten-Kontrolle
+// Verhindert unkontrollierte GPU-Kosten
+// --------------------------------------------
+
+model BudgetLimit {
+  id            String   @id @default(cuid())
+  
+  // Limit-Typ: "training", "inference", "total"
+  type          String
+  
+  // Limit in Cents
+  limitCents    Int
+  
+  // Aktueller Verbrauch in Cents
+  usedCents     Int      @default(0)
+  
+  // Zeitraum: "daily", "weekly", "monthly", "total"
+  period        String   @default("monthly")
+  
+  // Ist das Limit aktiv?
+  isActive      Boolean  @default(true)
+  
+  // Was passiert bei Überschreitung: "warn", "block"
+  action        String   @default("warn")
+  
+  // Reset-Datum (für periodische Limits)
+  resetAt       DateTime?
+  
+  // Timestamps
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@unique([type, period])
+  @@index([isActive])
+}
+
+// ============================================
+// USER & INTELLIGENCE AGENT
+// Zentrales User-Modell und Agent-Gedächtnis
+// Sprint 1: Intelligence Foundation (2026-02-07)
+// ============================================
+
+// --------------------------------------------
+// User - Zentrales User-Modell
+// Fundament für alle Agent-relevanten Daten
+// Verwendet von: Agent, Profil-Seite, alle Module
+// --------------------------------------------
+
+model User {
+  id        String   @id @default(cuid())
+  
+  // Anzeigename des Users
+  name      String
+  
+  // E-Mail-Adresse (optional, eindeutig)
+  email     String?  @unique
+  
+  // Avatar-URL oder null (zeigt dann Initialen)
+  avatar    String?
+  
+  // Kurze Bio (max 160 Zeichen)
+  bio       String?
+  
+  // Status: "online", "away", "busy", "offline"
+  status    String   @default("online")
+  
+  // Zeitzone für Terminplanung und proaktive Trigger
+  timezone  String   @default("Europe/Berlin")
+  
+  // Bevorzugte Sprache für Agent-Antworten
+  language  String   @default("de")
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relationen zu allen Agent-relevanten Daten
+  preferences   UserPreference[]
+  memories      UserMemory[]
+  chatMessages  ChatMessage[]
+  summaries     ConversationSummary[]
+  workspaceBases WorkspaceBase[]
+  dashboardFolders DashboardFolder[]
+  dashboardDocuments DashboardDocument[]
+  groupLibraries GroupLibrary[]
+  groupFolders GroupFolder[]
+  groupDocuments GroupDocument[]
+  externalApps ExternalAppInstallation[]
+}
+
+// --------------------------------------------
+// UserPreference - Typisierte Präferenzen
+// Strukturierte Einstellungen pro Domain
+// z.B. domain="scheduling", key="meeting_duration", value=30
+// --------------------------------------------
+
+model UserPreference {
+  id        String   @id @default(cuid())
+  
+  // Verknüpfung zum User
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Domain der Präferenz: "communication", "scheduling", "ui", "agent"
+  domain    String
+  
+  // Schlüssel: z.B. "email_length", "meeting_duration", "proactive_mode"
+  key       String
+  
+  // Flexibler Wert als JSON (String, Number, Boolean, Object)
+  value     Json
+  
+  // Timestamps
+  updatedAt DateTime @updatedAt
+  
+  @@unique([userId, domain, key])
+  @@index([userId, domain])
+}
+
+// --------------------------------------------
+// UserMemory - Persistentes Agent-Gedächtnis
+// Der Agent speichert Fakten, Präferenzen und Instruktionen
+// Verwendet von: Memory Agent-Tools (save, recall, list)
+// --------------------------------------------
+
+model UserMemory {
+  id         String   @id @default(cuid())
+  
+  // Verknüpfung zum User
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Kategorie: "preference", "fact", "instruction", "entity", "pattern"
+  category   String
+  
+  // Eindeutiger Schlüssel (z.B. "preferred_email_style")
+  key        String
+  
+  // Gespeicherter Wert als JSON
+  value      Json
+  
+  // Konfidenz der Information (0.0 - 1.0)
+  // 1.0 = explizit vom User bestätigt
+  // < 1.0 = vom Agent abgeleitet/gelernt
+  confidence Float    @default(1.0)
+  
+  // Quelle: "explicit" (User hat es gesagt), "learned", "inferred"
+  source     String   @default("explicit")
+  
+  // Timestamps
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  @@unique([userId, category, key])
+  @@index([userId, category])
+  @@index([userId, updatedAt])
+}
+
+// --------------------------------------------
+// ChatMessage - Persistente Chat-History
+// Speichert alle Agent-Konversationen in der DB
+// Ersetzt die localStorage-basierte History (max 50)
+// --------------------------------------------
+
+model ChatMessage {
+  id         String   @id @default(cuid())
+  
+  // Verknüpfung zum User
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Tab-ID (Chat-Tabs im Frontend)
+  tabId      String
+  
+  // Rolle: "user", "assistant", "system"
+  role       String
+  
+  // Nachrichteninhalt
+  content    String   @db.Text
+  
+  // Modul-Tag für Context Isolation (z.B. "calendar", "inbox")
+  moduleId   String?
+  
+  // Tool-Calls als JSON (falls vorhanden)
+  toolCalls  Json?
+  
+  // Token-Tracking für Kostenkontrolle
+  tokenCount Int?
+  
+  // Timestamps
+  createdAt  DateTime @default(now())
+  
+  @@index([userId, tabId])
+  @@index([userId, moduleId])
+  @@index([userId, createdAt])
+}
+
+// --------------------------------------------
+// ConversationSummary - Zusammenfassungen
+// Komprimierte Zusammenfassung beendeter Sessions
+// Wird bei Session-Ende durch LLM erstellt
+// --------------------------------------------
+
+model ConversationSummary {
+  id        String   @id @default(cuid())
+  
+  // Verknüpfung zum User
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Session-ID (entspricht einem Chat-Tab oder Zeitfenster)
+  sessionId String
+  
+  // LLM-generierte Zusammenfassung der Konversation
+  summary   String   @db.Text
+  
+  // Schlüsselthemen (z.B. ["kalender", "meeting", "max"])
+  keyTopics String[]
+  
+  // Genutzte Tools in dieser Session
+  toolsUsed String[]
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  
+  @@index([userId, createdAt])
+}
+
+// --------------------------------------------
+// WorkspaceBase - Persistente Bases
+// --------------------------------------------
+
+model WorkspaceBase {
+  id              String   @id
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name            String
+  description     String
+  icon            String   @default("Folder")
+  color           String   @default("#8b5cf6")
+  dashboard       Json
+  automationIds   String[]
+  backgroundImage String   @default("")
+  accessMembers   Json
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  modules         WorkspaceBaseModule[]
+  connections     WorkspaceBaseConnection[]
+
+  @@index([userId, name])
+}
+
+// --------------------------------------------
+// WorkspaceBaseModule - Modulzuordnung pro Base
+// --------------------------------------------
+
+model WorkspaceBaseModule {
+  id        String   @id @default(cuid())
+  baseId    String
+  base      WorkspaceBase @relation(fields: [baseId], references: [id], onDelete: Cascade)
+  moduleId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([baseId, moduleId])
+  @@index([moduleId])
+}
+
+// --------------------------------------------
+// ExternalAppInstallation - Persistierte externe Apps
+// Speichert pro User die installierten Cloud-Web-Apps
+// --------------------------------------------
+
+model ExternalAppInstallation {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  moduleId   String
+  catalogId  String?
+  name       String
+  icon       String   @default("Globe")
+  color      String   @default("#6366f1")
+  url        String
+  userUrl    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, moduleId])
+  @@index([userId])
+}
+
+// --------------------------------------------
+// WorkspaceBaseConnection - Modul-Verbindungen
+// --------------------------------------------
+
+model WorkspaceBaseConnection {
+  id             String   @id @default(cuid())
+  baseId         String
+  base           WorkspaceBase @relation(fields: [baseId], references: [id], onDelete: Cascade)
+  sourceModuleId String
+  targetModuleId String
+  connectionType String
+  description    String   @default("")
+  rule           Json
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([baseId, sourceModuleId])
+  @@index([baseId, targetModuleId])
+}
+
+// --------------------------------------------
+// DashboardFolder - Serverseitige Ordner pro Dashboard-Surface
+// surfaceType: "home" oder "base"
+// --------------------------------------------
+
+model DashboardFolder {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parentFolderId String?
+  parentFolder   DashboardFolder? @relation("DashboardFolderTree", fields: [parentFolderId], references: [id], onDelete: Cascade)
+  childFolders   DashboardFolder[] @relation("DashboardFolderTree")
+  surfaceType    String
+  surfaceId      String
+  name           String
+  color          String   @default("#8b5cf6")
+  x              Float    @default(48)
+  y              Float    @default(48)
+  width          Float    @default(220)
+  height         Float    @default(140)
+  linkedGroupId  String?
+  linkedGroupFolderId String?
+  documents      DashboardDocument[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([userId, surfaceType, surfaceId])
+  @@index([parentFolderId])
+  @@index([linkedGroupId])
+}
+
+// --------------------------------------------
+// DashboardDocument - Persistente Dateien auf Dashboards
+// Dateien koennen direkt auf dem Dashboard oder in Ordnern liegen
+// --------------------------------------------
+
+model DashboardDocument {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  folderId       String?
+  folder         DashboardFolder? @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  surfaceType    String
+  surfaceId      String
+  name           String
+  mimeType       String   @default("application/octet-stream")
+  sizeBytes      Int      @default(0)
+  relativePath   String   @default("")
+  x              Float    @default(48)
+  y              Float    @default(48)
+  width          Float    @default(96)
+  height         Float    @default(96)
+  contentText    String?  @db.Text
+  contentBase64  String?  @db.Text
+  source         String   @default("lifeos")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([userId, surfaceType, surfaceId])
+  @@index([folderId])
+}
+
+// --------------------------------------------
+// GroupLibrary - Persistente Gruppen-Metadaten / Datenbank-Root
+// --------------------------------------------
+
+model GroupLibrary {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  groupAgentId   String   @unique
+  name           String
+  description    String   @default("")
+  objective      String   @default("")
+  linkedDashboardFolderId String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  folders        GroupFolder[]
+  documents      GroupDocument[]
+
+  @@index([userId, groupAgentId])
+}
+
+// --------------------------------------------
+// GroupFolder - Echte Ordnerstruktur fuer Gruppen-Dateien
+// --------------------------------------------
+
+model GroupFolder {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  groupLibraryId String
+  groupLibrary   GroupLibrary @relation(fields: [groupLibraryId], references: [id], onDelete: Cascade)
+  parentFolderId String?
+  parentFolder   GroupFolder? @relation("GroupFolderTree", fields: [parentFolderId], references: [id], onDelete: Cascade)
+  childFolders   GroupFolder[] @relation("GroupFolderTree")
+  name           String
+  color          String   @default("#14B8A6")
+  relativePath   String   @default("")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  documents      GroupDocument[]
+
+  @@index([userId, groupLibraryId])
+  @@index([parentFolderId])
+}
+
+// --------------------------------------------
+// GroupDocument - Dokumente / importierte Dateien einer Gruppe
+// --------------------------------------------
+
+model GroupDocument {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  groupLibraryId String
+  groupLibrary   GroupLibrary @relation(fields: [groupLibraryId], references: [id], onDelete: Cascade)
+  folderId       String?
+  folder         GroupFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  name           String
+  mimeType       String   @default("text/plain")
+  sizeBytes      Int      @default(0)
+  relativePath   String   @default("")
+  contentText    String?  @db.Text
+  contentBase64  String?  @db.Text
+  source         String   @default("lifeos")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([userId, groupLibraryId])
+  @@index([folderId])
+}
+
+// --------------------------------------------
+// BuilderPromptSuggestion - Vorschlaege fuer Builder-Startseite
+// Werden in der Chatbar als animierte Placeholder rotiert
+// --------------------------------------------
+
+model BuilderPromptSuggestion {
+  id        String   @id @default(cuid())
+  text      String   @unique
+  category  String   @default("general")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([category])
+}

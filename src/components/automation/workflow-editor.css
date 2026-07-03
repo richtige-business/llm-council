@@ -1,0 +1,33 @@
+.lifeos-flow-node {
+  min-width: 180px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: rgba(15, 23, 42, 0.9);
+  color: #e2e8f0;
+  padding: 10px;
+  box-shadow: 0 10px 20px rgba(2, 6, 23, 0.35);
+}
+
+.lifeos-flow-node-title {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.lifeos-flow-node-meta {
+  font-size: 11px;
+  line-height: 1.2;
+  opacity: 0.85;
+}
+
+.lifeos-flow-node-trigger {
+  border-color: rgba(56, 189, 248, 0.65);
+}
+
+.lifeos-flow-node-condition {
+  border-color: rgba(251, 191, 36, 0.75);
+}
+
+.lifeos-flow-node-action {
+  border-color: rgba(16, 185, 129, 0.75);
+}
