@@ -18,6 +18,7 @@ import { useAgentsStore } from '../store';
 import { executeCouncilCompletion } from '../council-runtime';
 import { DEFAULT_OPENROUTER_MODEL_ID, normalizeOpenRouterModelId } from '@/lib/llm/model-catalog';
 import { COUNCIL_MEMBER_PRESETS, type CouncilMemberPreset } from '../council-member-presets';
+import { getNextAvailableCouncilSeatId } from '../lib/council-seats';
 import type { CouncilSeatMemberData } from '../types';
 
 interface ProposedMember {
@@ -30,28 +31,6 @@ interface ProposedMember {
 
 interface CouncilOnboardingModalProps {
   onClose: () => void;
-}
-
-const SEAT_ORDER = ['arc-left-0', 'arc-right-0', 'arc-left-1', 'arc-right-1'];
-
-function getNextAvailableCouncilSeatId(existingSeatMembers: CouncilSeatMemberData[]): string {
-  const usedSeatIds = new Set(existingSeatMembers.map((member) => member.seatId));
-
-  for (const seatId of SEAT_ORDER) {
-    if (!usedSeatIds.has(seatId)) {
-      return seatId;
-    }
-  }
-
-  let extraIndex = 0;
-  // Abwechselnd links/rechts weiterfuellen, wie die manuelle "+"-Seat-Erstellung.
-  while (true) {
-    const leftId = `arc-left-extra-${extraIndex}`;
-    if (!usedSeatIds.has(leftId)) return leftId;
-    const rightId = `arc-right-extra-${extraIndex}`;
-    if (!usedSeatIds.has(rightId)) return rightId;
-    extraIndex += 1;
-  }
 }
 
 function parseProposedMembers(raw: string): ProposedMember[] {
