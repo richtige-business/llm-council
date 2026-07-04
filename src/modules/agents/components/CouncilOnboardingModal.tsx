@@ -59,6 +59,32 @@ function parseProposedMembers(raw: string): ProposedMember[] {
     .filter((member) => member.name.length > 0);
 }
 
+export interface GoalAndPrompt {
+  goal: string;
+  finalPrompt: string;
+}
+
+export function parseGoalAndPrompt(raw: string): GoalAndPrompt {
+  const withoutFences = raw
+    .trim()
+    .replace(/^```(?:json)?/i, '')
+    .replace(/```$/, '')
+    .trim();
+
+  const parsed = JSON.parse(withoutFences);
+  const goal = typeof parsed?.goal === 'string' ? parsed.goal.trim() : '';
+  const finalPrompt = typeof parsed?.finalPrompt === 'string' ? parsed.finalPrompt.trim() : '';
+
+  if (!goal) {
+    throw new Error('Antwort enthält kein "goal".');
+  }
+  if (!finalPrompt) {
+    throw new Error('Antwort enthält keinen "finalPrompt".');
+  }
+
+  return { goal, finalPrompt };
+}
+
 const PROPOSAL_COLORS = ['#F97316', '#0EA5E9', '#22C55E', '#EC4899', '#A855F7', '#F59E0B', '#14B8A6', '#EF4444'];
 
 function colorForIndex(index: number): string {
@@ -114,7 +140,9 @@ export function CouncilOnboardingModal({ onClose }: CouncilOnboardingModalProps)
   const activeCouncilDraftSeatMembers = useAgentsStore((state) => state.activeCouncilDraftSeatMembers);
   const upsertActiveCouncilSeatMember = useAgentsStore((state) => state.upsertActiveCouncilSeatMember);
 
-  const [step, setStep] = useState<'describe' | 'propose'>('describe');
+  const [step, setStep] = useState<'describe' | 'refine' | 'propose'>('describe');
+  const [goal, setGoal] = useState('');
+  const [finalPrompt, setFinalPrompt] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -126,7 +154,7 @@ export function CouncilOnboardingModal({ onClose }: CouncilOnboardingModalProps)
 
   const selectedCount = selectedProposedNames.size + selectedPresetNames.size;
 
-  const requestProposals = async () => {
+  const requestGoalAndPrompt = async () => {
     const trimmedDescription = description.trim();
     if (!trimmedDescription) {
       return;
@@ -136,9 +164,45 @@ export function CouncilOnboardingModal({ onClose }: CouncilOnboardingModalProps)
     setError(null);
 
     try {
-      const systemPrompt = `You are the "Eldest" / chair of a new LLM council. The user will describe what kind of council they want and what question(s) they plan to ask.
+      const systemPrompt = `You are the "Eldest" / chair of a new LLM council. The user will roughly describe what kind of council they want and what question(s) they plan to ask.
 
-Propose 4 to 8 well-suited council members. Each member needs a distinct perspective relevant to the user's topic.
+Turn this into a sharp, well-scoped council goal and a single well-crafted opening question to pose to the council.
+
+Respond with STRICT JSON only, no markdown fences, no commentary, in exactly this shape:
+{"goal": "a short, clear council goal/title, max ~8 words", "finalPrompt": "the actual opening question to send to the council, written clearly and completely"}`;
+
+      const raw = await executeCouncilCompletion({
+        messages: [{ role: 'user', content: trimmedDescription }],
+        moduleId: 'master',
+        model: DEFAULT_OPENROUTER_MODEL_ID,
+        systemPrompt,
+      });
+
+      const parsed = parseGoalAndPrompt(raw);
+      setGoal(parsed.goal);
+      setFinalPrompt(parsed.finalPrompt);
+      setStep('refine');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Verfeinerung ist fehlgeschlagen.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const requestProposals = async () => {
+    const trimmedGoal = goal.trim();
+    const trimmedFinalPrompt = finalPrompt.trim();
+    if (!trimmedGoal || !trimmedFinalPrompt) {
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const systemPrompt = `You are the "Eldest" / chair of a new LLM council. The council's goal is: "${trimmedGoal}". The opening question will be: "${trimmedFinalPrompt}".
+
+Propose 4 to 8 well-suited council members. Each member needs a distinct perspective relevant to this goal and question.
 
 Respond with STRICT JSON only, no markdown fences, no commentary, in exactly this shape:
 {"members": [{"name": "...", "role": "...", "rolePrompt": "2-3 sentences describing how this member thinks and argues", "suggestedModel": "provider/model-id", "reason": "1 short sentence why this member is useful here"}]}
@@ -146,7 +210,7 @@ Respond with STRICT JSON only, no markdown fences, no commentary, in exactly thi
 Use OpenRouter-style model ids for suggestedModel, e.g. "openai/gpt-4o", "anthropic/claude-sonnet-4", "google/gemini-2.5-pro".`;
 
       const raw = await executeCouncilCompletion({
-        messages: [{ role: 'user', content: trimmedDescription }],
+        messages: [{ role: 'user', content: `${trimmedGoal}\n\n${trimmedFinalPrompt}` }],
         moduleId: 'master',
         model: DEFAULT_OPENROUTER_MODEL_ID,
         systemPrompt,
