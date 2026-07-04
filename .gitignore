@@ -51,3 +51,6 @@ app-runner-service/bin/
 
 # Docker
 .docker/
+
+# git worktrees (isolated dev workspaces)
+/.worktrees/
