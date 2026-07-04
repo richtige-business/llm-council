@@ -139,6 +139,8 @@ function MemberCandidateCard({
 export function CouncilOnboardingModal({ onClose }: CouncilOnboardingModalProps) {
   const activeCouncilDraftSeatMembers = useAgentsStore((state) => state.activeCouncilDraftSeatMembers);
   const upsertActiveCouncilSeatMember = useAgentsStore((state) => state.upsertActiveCouncilSeatMember);
+  const setActiveCouncilDraftName = useAgentsStore((state) => state.setActiveCouncilDraftName);
+  const setPendingCouncilPromptDraft = useAgentsStore((state) => state.setPendingCouncilPromptDraft);
 
   const [step, setStep] = useState<'describe' | 'refine' | 'propose'>('describe');
   const [goal, setGoal] = useState('');
@@ -294,6 +296,8 @@ Use OpenRouter-style model ids for suggestedModel, e.g. "openai/gpt-4o", "anthro
       seatMembersSoFar.push(newMember);
     }
 
+    setActiveCouncilDraftName(goal.trim());
+    setPendingCouncilPromptDraft(finalPrompt.trim());
     onClose();
   };
 
@@ -329,7 +333,11 @@ Use OpenRouter-style model ids for suggestedModel, e.g. "openai/gpt-4o", "anthro
                 Mit Eldest planen
               </div>
               <h3 className="mt-1 text-xl font-semibold text-white">
-                {step === 'describe' ? 'Was für einen Rat brauchst du?' : 'Vorgeschlagene Mitglieder'}
+                {step === 'describe'
+                  ? 'Was für einen Rat brauchst du?'
+                  : step === 'refine'
+                    ? 'Ziel & Frage verfeinern'
+                    : 'Vorgeschlagene Mitglieder'}
               </h3>
             </div>
           </div>
@@ -357,6 +365,30 @@ Use OpenRouter-style model ids for suggestedModel, e.g. "openai/gpt-4o", "anthro
                   rows={8}
                   placeholder="z.B. Ich will einen Rat, der mir hilft zu entscheiden, ob ich mein Startup weiterführen oder einen Job annehmen soll. Ich werde Fragen zu Risiko, Finanzen und langfristiger Zufriedenheit stellen."
                   className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-white/30 focus:border-white/25"
+                />
+              </label>
+
+              {error ? <p className="text-sm text-red-300">{error}</p> : null}
+            </div>
+          ) : step === 'refine' ? (
+            <div className="space-y-4">
+              <label className="space-y-2">
+                <span className="text-xs font-medium text-white/65">Ziel</span>
+                <input
+                  type="text"
+                  value={goal}
+                  onChange={(event) => setGoal(event.target.value)}
+                  className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition-colors focus:border-white/25"
+                />
+              </label>
+
+              <label className="space-y-2">
+                <span className="text-xs font-medium text-white/65">Finaler Prompt</span>
+                <textarea
+                  value={finalPrompt}
+                  onChange={(event) => setFinalPrompt(event.target.value)}
+                  rows={6}
+                  className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition-colors focus:border-white/25"
                 />
               </label>
 
@@ -405,18 +437,37 @@ Use OpenRouter-style model ids for suggestedModel, e.g. "openai/gpt-4o", "anthro
           {step === 'describe' ? (
             <button
               type="button"
-              onClick={requestProposals}
+              onClick={requestGoalAndPrompt}
               disabled={loading || !description.trim()}
               className="flex items-center gap-2 rounded-xl border border-cyan-400/20 bg-cyan-400/15 px-4 py-2.5 text-sm font-medium text-cyan-100 transition-colors hover:border-cyan-300/35 hover:bg-cyan-400/20 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              {loading ? 'Eldest überlegt…' : 'Vorschläge holen'}
+              {loading ? 'Eldest überlegt…' : 'Weiter'}
             </button>
-          ) : (
+          ) : step === 'refine' ? (
             <>
               <button
                 type="button"
                 onClick={() => setStep('describe')}
+                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/70 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
+              >
+                Zurück
+              </button>
+              <button
+                type="button"
+                onClick={requestProposals}
+                disabled={loading || !goal.trim() || !finalPrompt.trim()}
+                className="flex items-center gap-2 rounded-xl border border-cyan-400/20 bg-cyan-400/15 px-4 py-2.5 text-sm font-medium text-cyan-100 transition-colors hover:border-cyan-300/35 hover:bg-cyan-400/20 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                {loading ? 'Eldest überlegt…' : 'Mitglieder vorschlagen'}
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => setStep('refine')}
                 className="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/70 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
               >
                 Zurück
