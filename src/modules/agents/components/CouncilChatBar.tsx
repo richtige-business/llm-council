@@ -368,6 +368,8 @@ export function CouncilChatBar({
   const setWebResearchEnabled = useAgentsStore((state) => state.setWebResearchEnabled);
   const setDeepResearchEnabled = useAgentsStore((state) => state.setDeepResearchEnabled);
   const setAgentModeEnabled = useAgentsStore((state) => state.setAgentModeEnabled);
+  const pendingCouncilPromptDraft = useAgentsStore((state) => state.pendingCouncilPromptDraft);
+  const setPendingCouncilPromptDraft = useAgentsStore((state) => state.setPendingCouncilPromptDraft);
 
   const openCouncilChatMemberId = useAgentsSpatialStore((state) => state.openCouncilChatMemberId);
   const setOpenCouncilChatMember = useAgentsSpatialStore((state) => state.setOpenCouncilChatMember);
@@ -381,6 +383,18 @@ export function CouncilChatBar({
       textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 160)}px`;
     }
   }, [input]);
+
+  // Vorausgefuellten Prompt aus dem Eldest-Onboarding einmalig uebernehmen.
+  // Wird sofort danach im Store geleert, damit er nicht in einen spaeteren
+  // Council-Lauf durchsickert.
+  useEffect(() => {
+    if (pendingCouncilPromptDraft === null) {
+      return;
+    }
+
+    setInput(pendingCouncilPromptDraft);
+    setPendingCouncilPromptDraft(null);
+  }, [pendingCouncilPromptDraft, setPendingCouncilPromptDraft]);
 
   // Ordner-Upload-Attribute setzen
   useEffect(() => {
