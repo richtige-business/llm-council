@@ -18,6 +18,7 @@ import { useAgentsStore } from '../store';
 import { executeCouncilCompletion } from '../council-runtime';
 import { DEFAULT_OPENROUTER_MODEL_ID, normalizeOpenRouterModelId } from '@/lib/llm/model-catalog';
 import { COUNCIL_MEMBER_PRESETS, type CouncilMemberPreset } from '../council-member-presets';
+import { getNextAvailableCouncilSeatId } from '../lib/council-seats';
 import type { CouncilSeatMemberData } from '../types';
 
 interface ProposedMember {
@@ -30,28 +31,6 @@ interface ProposedMember {
 
 interface CouncilOnboardingModalProps {
   onClose: () => void;
-}
-
-const SEAT_ORDER = ['arc-left-0', 'arc-right-0', 'arc-left-1', 'arc-right-1'];
-
-function getNextAvailableCouncilSeatId(existingSeatMembers: CouncilSeatMemberData[]): string {
-  const usedSeatIds = new Set(existingSeatMembers.map((member) => member.seatId));
-
-  for (const seatId of SEAT_ORDER) {
-    if (!usedSeatIds.has(seatId)) {
-      return seatId;
-    }
-  }
-
-  let extraIndex = 0;
-  // Abwechselnd links/rechts weiterfuellen, wie die manuelle "+"-Seat-Erstellung.
-  while (true) {
-    const leftId = `arc-left-extra-${extraIndex}`;
-    if (!usedSeatIds.has(leftId)) return leftId;
-    const rightId = `arc-right-extra-${extraIndex}`;
-    if (!usedSeatIds.has(rightId)) return rightId;
-    extraIndex += 1;
-  }
 }
 
 function parseProposedMembers(raw: string): ProposedMember[] {
@@ -78,6 +57,32 @@ function parseProposedMembers(raw: string): ProposedMember[] {
       reason: entry.reason ? String(entry.reason).trim() : undefined,
     }))
     .filter((member) => member.name.length > 0);
+}
+
+export interface GoalAndPrompt {
+  goal: string;
+  finalPrompt: string;
+}
+
+export function parseGoalAndPrompt(raw: string): GoalAndPrompt {
+  const withoutFences = raw
+    .trim()
+    .replace(/^```(?:json)?/i, '')
+    .replace(/```$/, '')
+    .trim();
+
+  const parsed = JSON.parse(withoutFences);
+  const goal = typeof parsed?.goal === 'string' ? parsed.goal.trim() : '';
+  const finalPrompt = typeof parsed?.finalPrompt === 'string' ? parsed.finalPrompt.trim() : '';
+
+  if (!goal) {
+    throw new Error('Antwort enthält kein "goal".');
+  }
+  if (!finalPrompt) {
+    throw new Error('Antwort enthält keinen "finalPrompt".');
+  }
+
+  return { goal, finalPrompt };
 }
 
 const PROPOSAL_COLORS = ['#F97316', '#0EA5E9', '#22C55E', '#EC4899', '#A855F7', '#F59E0B', '#14B8A6', '#EF4444'];
@@ -134,8 +139,12 @@ function MemberCandidateCard({
 export function CouncilOnboardingModal({ onClose }: CouncilOnboardingModalProps) {
   const activeCouncilDraftSeatMembers = useAgentsStore((state) => state.activeCouncilDraftSeatMembers);
   const upsertActiveCouncilSeatMember = useAgentsStore((state) => state.upsertActiveCouncilSeatMember);
+  const setActiveCouncilDraftName = useAgentsStore((state) => state.setActiveCouncilDraftName);
+  const setPendingCouncilPromptDraft = useAgentsStore((state) => state.setPendingCouncilPromptDraft);
 
-  const [step, setStep] = useState<'describe' | 'propose'>('describe');
+  const [step, setStep] = useState<'describe' | 'refine' | 'propose'>('describe');
+  const [goal, setGoal] = useState('');
+  const [finalPrompt, setFinalPrompt] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -147,7 +156,7 @@ export function CouncilOnboardingModal({ onClose }: CouncilOnboardingModalProps)
 
   const selectedCount = selectedProposedNames.size + selectedPresetNames.size;
 
-  const requestProposals = async () => {
+  const requestGoalAndPrompt = async () => {
     const trimmedDescription = description.trim();
     if (!trimmedDescription) {
       return;
@@ -157,9 +166,45 @@ export function CouncilOnboardingModal({ onClose }: CouncilOnboardingModalProps)
     setError(null);
 
     try {
-      const systemPrompt = `You are the "Eldest" / chair of a new LLM council. The user will describe what kind of council they want and what question(s) they plan to ask.
+      const systemPrompt = `You are the "Eldest" / chair of a new LLM council. The user will roughly describe what kind of council they want and what question(s) they plan to ask.
 
-Propose 4 to 8 well-suited council members. Each member needs a distinct perspective relevant to the user's topic.
+Turn this into a sharp, well-scoped council goal and a single well-crafted opening question to pose to the council.
+
+Respond with STRICT JSON only, no markdown fences, no commentary, in exactly this shape:
+{"goal": "a short, clear council goal/title, max ~8 words", "finalPrompt": "the actual opening question to send to the council, written clearly and completely"}`;
+
+      const raw = await executeCouncilCompletion({
+        messages: [{ role: 'user', content: trimmedDescription }],
+        moduleId: 'master',
+        model: DEFAULT_OPENROUTER_MODEL_ID,
+        systemPrompt,
+      });
+
+      const parsed = parseGoalAndPrompt(raw);
+      setGoal(parsed.goal);
+      setFinalPrompt(parsed.finalPrompt);
+      setStep('refine');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Verfeinerung ist fehlgeschlagen.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const requestProposals = async () => {
+    const trimmedGoal = goal.trim();
+    const trimmedFinalPrompt = finalPrompt.trim();
+    if (!trimmedGoal || !trimmedFinalPrompt) {
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const systemPrompt = `You are the "Eldest" / chair of a new LLM council. The council's goal is: "${trimmedGoal}". The opening question will be: "${trimmedFinalPrompt}".
+
+Propose 4 to 8 well-suited council members. Each member needs a distinct perspective relevant to this goal and question.
 
 Respond with STRICT JSON only, no markdown fences, no commentary, in exactly this shape:
 {"members": [{"name": "...", "role": "...", "rolePrompt": "2-3 sentences describing how this member thinks and argues", "suggestedModel": "provider/model-id", "reason": "1 short sentence why this member is useful here"}]}
@@ -167,7 +212,7 @@ Respond with STRICT JSON only, no markdown fences, no commentary, in exactly thi
 Use OpenRouter-style model ids for suggestedModel, e.g. "openai/gpt-4o", "anthropic/claude-sonnet-4", "google/gemini-2.5-pro".`;
 
       const raw = await executeCouncilCompletion({
-        messages: [{ role: 'user', content: trimmedDescription }],
+        messages: [{ role: 'user', content: `${trimmedGoal}\n\n${trimmedFinalPrompt}` }],
         moduleId: 'master',
         model: DEFAULT_OPENROUTER_MODEL_ID,
         systemPrompt,
@@ -251,6 +296,8 @@ Use OpenRouter-style model ids for suggestedModel, e.g. "openai/gpt-4o", "anthro
       seatMembersSoFar.push(newMember);
     }
 
+    setActiveCouncilDraftName(goal.trim());
+    setPendingCouncilPromptDraft(finalPrompt.trim());
     onClose();
   };
 
@@ -286,7 +333,11 @@ Use OpenRouter-style model ids for suggestedModel, e.g. "openai/gpt-4o", "anthro
                 Mit Eldest planen
               </div>
               <h3 className="mt-1 text-xl font-semibold text-white">
-                {step === 'describe' ? 'Was für einen Rat brauchst du?' : 'Vorgeschlagene Mitglieder'}
+                {step === 'describe'
+                  ? 'Was für einen Rat brauchst du?'
+                  : step === 'refine'
+                    ? 'Ziel & Frage verfeinern'
+                    : 'Vorgeschlagene Mitglieder'}
               </h3>
             </div>
           </div>
@@ -314,6 +365,30 @@ Use OpenRouter-style model ids for suggestedModel, e.g. "openai/gpt-4o", "anthro
                   rows={8}
                   placeholder="z.B. Ich will einen Rat, der mir hilft zu entscheiden, ob ich mein Startup weiterführen oder einen Job annehmen soll. Ich werde Fragen zu Risiko, Finanzen und langfristiger Zufriedenheit stellen."
                   className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-white/30 focus:border-white/25"
+                />
+              </label>
+
+              {error ? <p className="text-sm text-red-300">{error}</p> : null}
+            </div>
+          ) : step === 'refine' ? (
+            <div className="space-y-4">
+              <label className="space-y-2">
+                <span className="text-xs font-medium text-white/65">Ziel</span>
+                <input
+                  type="text"
+                  value={goal}
+                  onChange={(event) => setGoal(event.target.value)}
+                  className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition-colors focus:border-white/25"
+                />
+              </label>
+
+              <label className="space-y-2">
+                <span className="text-xs font-medium text-white/65">Finaler Prompt</span>
+                <textarea
+                  value={finalPrompt}
+                  onChange={(event) => setFinalPrompt(event.target.value)}
+                  rows={6}
+                  className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition-colors focus:border-white/25"
                 />
               </label>
 
@@ -362,18 +437,37 @@ Use OpenRouter-style model ids for suggestedModel, e.g. "openai/gpt-4o", "anthro
           {step === 'describe' ? (
             <button
               type="button"
-              onClick={requestProposals}
+              onClick={requestGoalAndPrompt}
               disabled={loading || !description.trim()}
               className="flex items-center gap-2 rounded-xl border border-cyan-400/20 bg-cyan-400/15 px-4 py-2.5 text-sm font-medium text-cyan-100 transition-colors hover:border-cyan-300/35 hover:bg-cyan-400/20 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              {loading ? 'Eldest überlegt…' : 'Vorschläge holen'}
+              {loading ? 'Eldest überlegt…' : 'Weiter'}
             </button>
-          ) : (
+          ) : step === 'refine' ? (
             <>
               <button
                 type="button"
                 onClick={() => setStep('describe')}
+                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/70 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
+              >
+                Zurück
+              </button>
+              <button
+                type="button"
+                onClick={requestProposals}
+                disabled={loading || !goal.trim() || !finalPrompt.trim()}
+                className="flex items-center gap-2 rounded-xl border border-cyan-400/20 bg-cyan-400/15 px-4 py-2.5 text-sm font-medium text-cyan-100 transition-colors hover:border-cyan-300/35 hover:bg-cyan-400/20 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                {loading ? 'Eldest überlegt…' : 'Mitglieder vorschlagen'}
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => setStep('refine')}
                 className="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/70 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
               >
                 Zurück

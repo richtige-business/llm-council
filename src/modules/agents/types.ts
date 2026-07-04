@@ -727,6 +727,7 @@ export interface AgentsState {
   webResearchEnabled: boolean;          // Web Research aktiv?
   deepResearchEnabled: boolean;         // Deep Research aktiv?
   agentModeEnabled: boolean;            // Agent-Mode aktiv? (UI-only)
+  pendingCouncilPromptDraft: string | null; // Vom Eldest-Onboarding vorausgefuellter Chatbar-Entwurf
 }
 
 // --------------------------------------------
@@ -858,6 +859,7 @@ export interface AgentsActions {
   setWebResearchEnabled: (enabled: boolean) => void;
   setDeepResearchEnabled: (enabled: boolean) => void;
   setAgentModeEnabled: (enabled: boolean) => void;
+  setPendingCouncilPromptDraft: (draft: string | null) => void;
 }
 
 // --------------------------------------------

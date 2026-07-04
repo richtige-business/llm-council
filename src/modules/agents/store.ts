@@ -237,6 +237,7 @@ export const useAgentsStore = create<AgentsStore>()(
       webResearchEnabled: false,
       deepResearchEnabled: false,
       agentModeEnabled: false,
+      pendingCouncilPromptDraft: null,
 
       // ----------------------------------------
       // Conversation Management Actions
@@ -2375,6 +2376,10 @@ export const useAgentsStore = create<AgentsStore>()(
 
       setAgentModeEnabled: (enabled) => {
         set({ agentModeEnabled: enabled });
+      },
+
+      setPendingCouncilPromptDraft: (draft) => {
+        set({ pendingCouncilPromptDraft: draft });
       },
     }),
     {
