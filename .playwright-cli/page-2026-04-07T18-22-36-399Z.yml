@@ -1,0 +1,189 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - button "Module öffnen (⌘B)" [ref=e5]:
+      - img [ref=e6]
+    - main [ref=e8]:
+      - generic [ref=e9]:
+        - generic:
+          - generic [ref=e82]:
+            - generic [ref=e83]:
+              - button [ref=e84]:
+                - img [ref=e85]
+              - button [ref=e88]:
+                - img [ref=e89]
+            - img [ref=e99]
+            - paragraph [ref=e102]: Livus
+          - generic [ref=e104]:
+            - generic [ref=e105]:
+              - button [ref=e106]:
+                - img [ref=e107]
+              - button [ref=e110]:
+                - img [ref=e111]
+            - img [ref=e121]
+            - paragraph [ref=e124]: Business English
+          - generic [ref=e126]:
+            - generic [ref=e127]:
+              - button [ref=e128]:
+                - img [ref=e129]
+              - button [ref=e132]:
+                - img [ref=e133]
+            - img [ref=e143]
+            - paragraph [ref=e146]: succo
+        - button "Anpassen" [ref=e11]:
+          - img [ref=e12]
+          - generic [ref=e17]: Anpassen
+        - generic [ref=e22]:
+          - button "Postfach" [ref=e24] [cursor=pointer]:
+            - img [ref=e26]
+            - generic: Postfach
+          - button "Kalender" [ref=e30] [cursor=pointer]:
+            - img [ref=e32]
+            - generic: Kalender
+          - button "Browser" [ref=e35] [cursor=pointer]:
+            - img [ref=e37]
+            - generic: Browser
+          - button "Agents" [ref=e41] [cursor=pointer]:
+            - img [ref=e43]
+            - generic: Agents
+        - generic [ref=e47]:
+          - heading "Guten Abend, User." [level=1] [ref=e48]
+          - paragraph [ref=e49]: Was möchtest du heute erreichen?
+        - generic [ref=e148]:
+          - generic [ref=e149]:
+            - generic [ref=e150]:
+              - button "Schließen" [ref=e151]:
+                - img [ref=e152]
+              - button "Minimieren" [ref=e155]:
+                - img [ref=e156]
+              - button "Maximieren" [ref=e157]:
+                - img [ref=e158]
+            - generic [ref=e160]:
+              - img [ref=e161]
+              - generic [ref=e164]: Agents
+            - button "Neuen Tab hinzufügen" [ref=e166]:
+              - img [ref=e167]
+          - generic [ref=e170]:
+            - generic [ref=e171]:
+              - generic [ref=e173]:
+                - button "Agent Hub" [ref=e174]:
+                  - img [ref=e175]
+                  - heading "Agent Hub" [level=3] [ref=e179]
+                - generic [ref=e180]:
+                  - button "Neuen Agent erstellen" [ref=e181]:
+                    - img [ref=e182]
+                  - button "Gruppenchat erstellen" [ref=e183]:
+                    - img [ref=e184]
+                  - button "Agenten-Panel einklappen" [ref=e189]:
+                    - img [ref=e190]
+              - generic [ref=e192]:
+                - generic [ref=e193]:
+                  - button "Agents" [ref=e194]
+                  - button "Gruppen" [ref=e195]
+                  - button "Council" [ref=e196]
+                - generic [ref=e198]:
+                  - button "Chat" [ref=e199]:
+                    - img [ref=e200]
+                  - button "Aufgaben" [active] [ref=e202]:
+                    - img [ref=e203]
+                  - button "Einstellungen" [ref=e206]:
+                    - img [ref=e207]
+              - generic [ref=e210]:
+                - generic [ref=e211]:
+                  - paragraph [ref=e212]: Systemagents
+                  - generic [ref=e213]:
+                    - generic [ref=e214]:
+                      - button "Einklappen" [ref=e215]:
+                        - img [ref=e216]
+                      - button [ref=e218]:
+                        - img [ref=e220]
+                      - button "Intelligence Über-Agent – koordiniert alle Module" [ref=e233]:
+                        - paragraph [ref=e234]: Intelligence
+                        - paragraph [ref=e235]: Über-Agent – koordiniert alle Module
+                      - button "Subagent unter Intelligence erstellen" [ref=e236]:
+                        - img [ref=e237]
+                    - generic [ref=e240]:
+                      - button [ref=e242]:
+                        - img [ref=e244]
+                      - button "Kalender Agent" [ref=e247]:
+                        - paragraph [ref=e248]: Kalender Agent
+                      - button "Subagent unter Kalender Agent erstellen" [ref=e249]:
+                        - img [ref=e250]
+                    - generic [ref=e253]:
+                      - button [ref=e255]:
+                        - img [ref=e257]
+                      - button "Postfach Agent" [ref=e261]:
+                        - paragraph [ref=e262]: Postfach Agent
+                      - button "Subagent unter Postfach Agent erstellen" [ref=e263]:
+                        - img [ref=e264]
+                    - generic [ref=e267]:
+                      - button [ref=e269]:
+                        - img [ref=e271]
+                      - button "Browser Agent" [ref=e275]:
+                        - paragraph [ref=e276]: Browser Agent
+                      - button "Subagent unter Browser Agent erstellen" [ref=e277]:
+                        - img [ref=e278]
+                    - generic [ref=e281]:
+                      - button [ref=e283]:
+                        - img [ref=e285]
+                      - button "Aufgaben Agent" [ref=e289]:
+                        - paragraph [ref=e290]: Aufgaben Agent
+                      - button "Subagent unter Aufgaben Agent erstellen" [ref=e291]:
+                        - img [ref=e292]
+                    - generic [ref=e295]:
+                      - button [ref=e297]:
+                        - img [ref=e299]
+                      - button "Training Agent" [ref=e306]:
+                        - paragraph [ref=e307]: Training Agent
+                      - button "Subagent unter Training Agent erstellen" [ref=e308]:
+                        - img [ref=e309]
+                - generic [ref=e310]:
+                  - paragraph [ref=e311]: Eigene Agents
+                  - paragraph [ref=e312]: Noch keine eigenen Agents vorhanden.
+            - generic [ref=e469]:
+              - generic [ref=e470]:
+                - generic [ref=e471]:
+                  - button "Chat" [ref=e472]
+                  - button "Aufgaben" [ref=e473]
+                  - button "Einstellungen" [ref=e474]
+                - generic [ref=e477]:
+                  - heading "Intelligence" [level=1] [ref=e478]
+                  - paragraph [ref=e479]: Verwalte die geplanten Aufgaben des aktuell ausgewaehlten Orbs mit klarer Trennung zwischen wiederkehrend und einmalig.
+              - generic [ref=e480]:
+                - generic [ref=e481]:
+                  - img
+                  - textbox "Tasks von Intelligence suchen..." [ref=e482]
+                - generic [ref=e483]:
+                  - button "Alle" [ref=e484]
+                  - button "Aktiv" [ref=e485]
+                  - button "Pausiert" [ref=e486]
+                  - button "Fehler" [ref=e487]
+                  - button "Neue Task" [ref=e488]:
+                    - img [ref=e489]
+                    - text: Neue Task
+              - generic [ref=e490]:
+                - generic [ref=e492]:
+                  - generic [ref=e493]:
+                    - generic [ref=e494]:
+                      - heading "Wiederkehrende Tasks" [level=2] [ref=e495]
+                      - paragraph [ref=e496]: Alle wiederkehrenden Jobs dieses Agents.
+                    - paragraph [ref=e500]: Keine wiederkehrenden Tasks fuer diesen Agenten.
+                  - generic [ref=e501]:
+                    - generic [ref=e502]:
+                      - heading "Einmalige Tasks" [level=2] [ref=e503]
+                      - paragraph [ref=e504]: Geplante Einmal-Ausfuehrungen fuer diesen Agenten.
+                    - paragraph [ref=e508]: Keine einmaligen Tasks fuer diesen Agenten.
+                - generic [ref=e510]:
+                  - generic [ref=e512]:
+                    - heading "Keine Task ausgewaehlt" [level=2] [ref=e513]
+                    - paragraph [ref=e514]: Waehle links eine Scheduled Task aus oder lege eine neue Aufgabe an.
+                  - generic [ref=e515]:
+                    - generic [ref=e516]:
+                      - heading "Run History" [level=3] [ref=e517]
+                      - paragraph [ref=e518]: "MVP: lokale Lauf-Historie mit Stub-Ausfuehrungen und manuellen Probelauf-Eintraegen."
+                    - paragraph [ref=e520]: Noch keine Task-Laeufe vorhanden.
+    - button "Chat öffnen" [ref=e53] [cursor=pointer]:
+      - img [ref=e56]
+      - img [ref=e63]
+  - button "Open Next.js Dev Tools" [ref=e76] [cursor=pointer]:
+    - img [ref=e77]
+  - alert [ref=e80]

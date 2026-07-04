@@ -1,0 +1,83 @@
+<svg width="1600" height="1000" viewBox="0 0 1600 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="1000" fill="#07111F"/>
+  <rect width="1600" height="1000" fill="url(#bg)"/>
+  <circle cx="1160" cy="184" r="124" fill="url(#moon)" fill-opacity="0.95"/>
+  <circle cx="1160" cy="184" r="186" fill="url(#moonGlow)" fill-opacity="0.42"/>
+  <ellipse cx="792" cy="919" rx="709" ry="241" fill="url(#floor)"/>
+  <path d="M0 782C202 696 371 657 542 676C704 694 800 749 977 743C1138 738 1290 670 1600 573V1000H0V782Z" fill="url(#ridgeBack)" opacity="0.78"/>
+  <path d="M0 836C207 729 399 736 570 783C736 829 889 863 1075 833C1240 807 1384 736 1600 667V1000H0V836Z" fill="url(#ridgeFront)"/>
+  <g opacity="0.92">
+    <circle cx="800" cy="575" r="82" fill="url(#coreGlow)"/>
+    <circle cx="800" cy="575" r="36" fill="#EEF6FF"/>
+    <circle cx="800" cy="575" r="10" fill="#FFFFFF"/>
+  </g>
+  <g opacity="0.8">
+    <circle cx="548" cy="689" r="60" fill="url(#seatGlowTeal)"/>
+    <circle cx="548" cy="689" r="26" fill="#E9FFFA"/>
+    <circle cx="1047" cy="689" r="60" fill="url(#seatGlowGold)"/>
+    <circle cx="1047" cy="689" r="26" fill="#FFF8E7"/>
+    <circle cx="800" cy="377" r="54" fill="url(#seatGlowRose)"/>
+    <circle cx="800" cy="377" r="23" fill="#FFF0F4"/>
+  </g>
+  <path d="M800 416V528" stroke="url(#line)" stroke-width="2" stroke-linecap="round" opacity="0.45"/>
+  <path d="M598 667L752 599" stroke="url(#line)" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+  <path d="M1001 667L848 599" stroke="url(#line)" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+  <g opacity="0.5" fill="#D7E6FF">
+    <circle cx="233" cy="168" r="1.6"/>
+    <circle cx="356" cy="129" r="1.2"/>
+    <circle cx="488" cy="188" r="1.4"/>
+    <circle cx="628" cy="110" r="1.3"/>
+    <circle cx="733" cy="210" r="1.5"/>
+    <circle cx="942" cy="123" r="1.4"/>
+    <circle cx="1031" cy="247" r="1.1"/>
+    <circle cx="1280" cy="126" r="1.5"/>
+    <circle cx="1378" cy="210" r="1.2"/>
+  </g>
+  <defs>
+    <linearGradient id="bg" x1="800" y1="0" x2="800" y2="1000" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0C1E36"/>
+      <stop offset="0.44" stop-color="#0A1323"/>
+      <stop offset="1" stop-color="#05080F"/>
+    </linearGradient>
+    <radialGradient id="moon" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1160 184) rotate(90) scale(124)">
+      <stop stop-color="#FFF7DF"/>
+      <stop offset="1" stop-color="#FFD26D"/>
+    </radialGradient>
+    <radialGradient id="moonGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1160 184) rotate(90) scale(186)">
+      <stop stop-color="#FFE5A6"/>
+      <stop offset="1" stop-color="#FFE5A6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="floor" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(792 919) rotate(90) scale(241 709)">
+      <stop stop-color="#10294A"/>
+      <stop offset="1" stop-color="#08101C" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ridgeBack" x1="800" y1="573" x2="800" y2="1000" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#102540"/>
+      <stop offset="1" stop-color="#09111C"/>
+    </linearGradient>
+    <linearGradient id="ridgeFront" x1="800" y1="667" x2="800" y2="1000" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0A1830"/>
+      <stop offset="1" stop-color="#04070D"/>
+    </linearGradient>
+    <radialGradient id="coreGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(800 575) rotate(90) scale(82)">
+      <stop stop-color="#9ED8FF"/>
+      <stop offset="1" stop-color="#3D86B7"/>
+    </radialGradient>
+    <radialGradient id="seatGlowTeal" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(548 689) rotate(90) scale(60)">
+      <stop stop-color="#8FF6EC"/>
+      <stop offset="1" stop-color="#2F847B"/>
+    </radialGradient>
+    <radialGradient id="seatGlowGold" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1047 689) rotate(90) scale(60)">
+      <stop stop-color="#FFE27F"/>
+      <stop offset="1" stop-color="#B99628"/>
+    </radialGradient>
+    <radialGradient id="seatGlowRose" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(800 377) rotate(90) scale(54)">
+      <stop stop-color="#FFB0AE"/>
+      <stop offset="1" stop-color="#A85358"/>
+    </radialGradient>
+    <linearGradient id="line" x1="800" y1="377" x2="800" y2="689" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E8F3FF"/>
+      <stop offset="1" stop-color="#95B6DA" stop-opacity="0.4"/>
+    </linearGradient>
+  </defs>
+</svg>

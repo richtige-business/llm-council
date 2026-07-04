@@ -1,0 +1,143 @@
+# ============================================
+# LLM Council Cursor Rules
+# Standardvorgaben für KI-Assistenten
+# ============================================
+
+## Code-Dokumentation (PFLICHT)
+
+Jede Datei und jeder Code-Abschnitt MUSS mit menschenlesbaren Kommentaren versehen werden:
+
+### Datei-Header
+Jede neue Datei beginnt mit einem Header-Kommentar:
+```
+// ============================================
+// [Dateiname] - [Kurzbeschreibung]
+// 
+// Zweck: [Was macht diese Datei?]
+// Verwendet von: [Welche anderen Dateien nutzen diese?]
+// ============================================
+```
+
+### Abschnitt-Kommentare
+Größere Code-Abschnitte werden mit Trennlinien und Erklärungen versehen:
+```
+// --------------------------------------------
+// [Abschnittsname]
+// [Erklärung was dieser Abschnitt tut]
+// --------------------------------------------
+```
+
+### Inline-Kommentare
+Komplexe Logik wird zeilenweise oder blockweise erklärt:
+- Was macht dieser Code?
+- Warum wurde diese Lösung gewählt?
+- Welche Eingaben erwartet er?
+- Was gibt er zurück?
+
+### Beispiel für gute Kommentierung:
+```typescript
+// ============================================
+// CalendarStore - Zentraler Datenspeicher für Kalender-Events
+// 
+// Zweck: Verwaltet alle Kalender-Events und Kategorien
+// Verwendet von: MonthView, WeekView, EventModal, Widgets
+// ============================================
+
+import { create } from 'zustand';
+
+// --------------------------------------------
+// Typen für den Store
+// Diese definieren die Struktur unserer Daten
+// --------------------------------------------
+
+interface CalendarEvent {
+  id: string;           // Eindeutige ID für jedes Event
+  title: string;        // Titel des Events (z.B. "Meeting mit Max")
+  startDate: string;    // Startdatum im ISO-Format (2024-01-15T14:00:00)
+}
+
+// --------------------------------------------
+// Store erstellen
+// Zustand speichert die Daten und stellt Funktionen bereit
+// --------------------------------------------
+
+export const useCalendarStore = create((set, get) => ({
+  // Alle Events als Array speichern
+  events: [],
+  
+  // Neues Event hinzufügen
+  // Parameter: event - Das neue Event-Objekt ohne ID
+  // Rückgabe: keine (ändert den State direkt)
+  addEvent: (event) => {
+    // Generiere eine eindeutige ID für das neue Event
+    const newEvent = {
+      ...event,
+      id: crypto.randomUUID(),
+    };
+    
+    // Füge das Event zum bestehenden Array hinzu
+    set((state) => ({
+      events: [...state.events, newEvent],
+    }));
+  },
+}));
+```
+
+## Sprache
+
+- Code-Kommentare: Deutsch
+- Variablennamen: Englisch (camelCase)
+- Komponenten-Namen: Englisch (PascalCase)
+- Commit-Messages: Deutsch
+
+## Stil-Vorgaben
+
+- Glassmorphism-Design wie in der restlichen App
+- Tailwind CSS für Styling
+- Framer Motion für Animationen
+- Konsistente Farbpalette aus globals.css
+
+## Layout-Regeln (WICHTIG!)
+
+### Volle Höhe nutzen
+Alle Seiten und Fenster können jetzt die **volle Höhe** des Bildschirms nutzen!
+
+**Regeln:**
+- Das Intelligence Orb (Chat-Icon) ist draggable und blockiert nichts mehr
+- Seiten sollen `h-full` verwenden für volle Höhe
+- Kein `pb-32` oder `pb-24` mehr nötig!
+- Bei viel Content: Der User muss scrollen können, um alles zu sehen
+- Kompaktes Design bevorzugen (p-4 statt p-6, kleinere Margins)
+
+```typescript
+// RICHTIG: Seiten-Content mit voller Höhe
+<div className="flex h-full items-start justify-center p-6">
+  {/* Content hier */}
+</div>
+
+// AUCH RICHTIG: Scrollbare Seite
+<div className="min-h-screen p-6">
+  {/* Content hier */}
+</div>
+```
+
+### Kompaktes Design
+Bei Seiten mit viel Content:
+- Padding: `p-4` oder `p-6` statt größer
+- Margins: `mb-3` oder `mb-4` statt `mb-6`
+- Border-Radius: `rounded-2xl` statt `rounded-3xl`
+- Icons: `h-5 w-5` oder `h-4 w-4` statt größer
+
+## README-Dokumentation (PFLICHT bei wichtigen Änderungen)
+
+**Bei jeder WICHTIGEN Änderung oder Neuerung** (neues Feature, neues Modul, Tech-Stack-Änderung, neue Env-Vars, etc.):
+
+1. **Frage den Nutzer vorher**: "Soll ich diese Änderung ins README übernehmen?"
+2. Wenn ja: README.md entsprechend aktualisieren (Highlights, Tech Stack, Projektstruktur, Module, Status, Env-Vars – je nach Relevanz)
+3. Halte die Sektionen kompakt und aktuell
+
+## Bei Fragen
+
+Wenn etwas unklar ist, frage nach bevor du Code schreibst.
+Lieber einmal mehr nachfragen als falschen Code produzieren.
+

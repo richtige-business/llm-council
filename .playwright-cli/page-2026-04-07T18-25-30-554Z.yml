@@ -1,0 +1,93 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - button "Module öffnen (⌘B)" [active] [ref=e5]:
+      - img [ref=e6]
+    - complementary [ref=e109]:
+      - generic [ref=e110]:
+        - link "U User Online" [ref=e111] [cursor=pointer]:
+          - /url: /profile
+          - generic [ref=e112]:
+            - generic [ref=e115]: U
+            - generic [ref=e117]:
+              - heading "User" [level=1] [ref=e118]
+              - paragraph [ref=e119]: Online
+            - img [ref=e121]
+        - button [ref=e123]:
+          - img [ref=e124]
+      - generic [ref=e129]:
+        - generic [ref=e131]:
+          - link "Dashboard" [ref=e132] [cursor=pointer]:
+            - /url: /
+            - generic [ref=e133]:
+              - img [ref=e134]
+              - generic [ref=e137]: Dashboard
+          - button "Dashboard aufklappen" [ref=e138]:
+            - img [ref=e139]
+        - link "Agents" [ref=e142] [cursor=pointer]:
+          - /url: /agents
+          - generic [ref=e143]:
+            - img [ref=e144]
+            - generic [ref=e146]: Agents
+      - navigation [ref=e148]:
+        - heading "Bases" [level=3] [ref=e149]
+        - generic [ref=e150]:
+          - generic [ref=e152]:
+            - link "Business Workflow 1" [ref=e153] [cursor=pointer]:
+              - /url: /bases/1760561d-cd75-41d7-ae4f-f46e98cbf053
+            - button "Base Business Workflow 1 aufklappen" [ref=e154]:
+              - img [ref=e155]
+          - generic [ref=e158]:
+            - link "Business Workflow 2" [ref=e159] [cursor=pointer]:
+              - /url: /bases/e71a7453-09e1-46d0-b6ac-1afdb18e9bea
+            - button "Base Business Workflow 2 aufklappen" [ref=e160]:
+              - img [ref=e161]
+      - generic [ref=e164]:
+        - heading "System" [level=3] [ref=e165]
+        - generic [ref=e166]:
+          - link "Bibliothek" [ref=e167] [cursor=pointer]:
+            - /url: /library
+            - generic [ref=e168]:
+              - img [ref=e169]
+              - generic [ref=e171]: Bibliothek
+          - link "Labor" [ref=e172] [cursor=pointer]:
+            - /url: /lab
+            - generic [ref=e173]:
+              - img [ref=e174]
+              - generic [ref=e176]: Labor
+          - link "Einstellungen" [ref=e177] [cursor=pointer]:
+            - /url: /settings
+            - generic [ref=e178]:
+              - img [ref=e179]
+              - generic [ref=e182]: Einstellungen
+    - main [ref=e8]:
+      - generic [ref=e9]:
+        - generic [ref=e51]:
+          - generic [ref=e52]:
+            - button [ref=e53]:
+              - img [ref=e54]
+            - button [ref=e57]:
+              - img [ref=e58]
+          - img [ref=e68]
+          - paragraph [ref=e71]: Neuer Ordner
+        - generic [ref=e72]:
+          - button "Anpassen" [ref=e74]:
+            - img [ref=e75]
+            - generic [ref=e80]: Anpassen
+          - generic [ref=e85]:
+            - button [ref=e87] [cursor=pointer]:
+              - img [ref=e89]
+            - button [ref=e93] [cursor=pointer]:
+              - img [ref=e95]
+            - button [ref=e98] [cursor=pointer]:
+              - img [ref=e100]
+          - generic:
+            - generic:
+              - heading "Business Workflow 1 Base" [level=1]
+              - link "Connections öffnen" [ref=e103] [cursor=pointer]:
+                - /url: /bases/1760561d-cd75-41d7-ae4f-f46e98cbf053/connections
+    - button "Chat öffnen" [ref=e16] [cursor=pointer]:
+      - img [ref=e19]
+      - img [ref=e26]
+  - button "Open Next.js Dev Tools" [ref=e104] [cursor=pointer]:
+    - img [ref=e105]
+  - alert [ref=e47]

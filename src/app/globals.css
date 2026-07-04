@@ -1,0 +1,632 @@
+@import "tailwindcss";
+
+/* ============================================
+   LLM Council Design System
+   Apple-inspired Dark Theme
+   ============================================ */
+
+:root {
+  /* Background Colors */
+  --bg-primary: #0a0a0b;
+  --bg-secondary: #141416;
+  --bg-elevated: #1c1c1f;
+  --bg-hover: #252528;
+  --bg-active: #2d2d31;
+  
+  /* Surface Colors (for cards, modals) */
+  --surface-primary: #18181b;
+  --surface-secondary: #1f1f23;
+  --surface-elevated: #27272a;
+  
+  /* Text Colors */
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-tertiary: #71717a;
+  --text-muted: #52525b;
+  
+  /* Accent Colors */
+  --accent-primary: #0ea5e9;
+  --accent-primary-hover: #38bdf8;
+  --accent-secondary: #8b5cf6;
+  --accent-success: #22c55e;
+  --accent-warning: #f59e0b;
+  --accent-danger: #ef4444;
+  
+  /* Border Colors */
+  --border-primary: #27272a;
+  --border-secondary: #3f3f46;
+  --border-focus: transparent;
+  
+  /* Glassmorphism */
+  --glass-bg: rgba(24, 24, 27, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.5);
+  
+  /* Spacing Scale */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
+  
+  /* Border Radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-full: 9999px;
+  
+  /* Typography */
+  --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: var(--font-geist-mono), 'SF Mono', Monaco, Consolas, monospace;
+  
+  /* Font Sizes */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  
+  /* Font Weights */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  
+  /* Line Heights */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
+  
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  
+  /* Sidebar */
+  --sidebar-width-expanded: 260px;
+  --sidebar-width-collapsed: 72px;
+  
+  /* Z-Index Scale */
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-modal: 300;
+  --z-popover: 400;
+  --z-tooltip: 500;
+  
+  /* ============================================
+     Design Style Variables (Default: Glassmorphism)
+     Diese Variablen werden je nach gewähltem Stil überschrieben
+     ============================================ */
+  
+  /* Container Styles (Sidebar, Tabs, Modals) */
+  --container-bg: rgba(255, 255, 255, 0.15);
+  --container-border: rgba(255, 255, 255, 0.2);
+  --container-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --container-radius: 1.5rem;
+  --container-backdrop: blur(40px) saturate(180%);
+  
+  /* Surface Styles (Cards, Panels) */
+  --surface-bg: rgba(255, 255, 255, 0.12);
+  --surface-border: rgba(255, 255, 255, 0.15);
+  --surface-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  --surface-radius: 1.5rem;
+  --surface-backdrop: blur(40px) saturate(180%);
+  
+  /* Button Styles */
+  --button-bg: rgba(255, 255, 255, 0.1);
+  --button-bg-hover: rgba(255, 255, 255, 0.2);
+  --button-bg-active: rgba(255, 255, 255, 0.25);
+  --button-border: rgba(255, 255, 255, 0.1);
+  --button-radius: 0.75rem;
+  --button-shadow: none;
+  
+  /* Input Styles */
+  --input-bg: rgba(255, 255, 255, 0.1);
+  --input-border: rgba(255, 255, 255, 0.1);
+  --input-border-focus: transparent;
+  --input-radius: 0.75rem;
+  
+  /* Nav Item Styles */
+  --nav-bg-active: rgba(255, 255, 255, 0.2);
+  --nav-bg-hover: rgba(255, 255, 255, 0.1);
+  --nav-radius: 1rem;
+}
+
+/* ============================================
+   Glassmorphism Style (Default)
+   Transparente Oberflächen mit Blur-Effekt
+   ============================================ */
+
+[data-style="glass"] {
+  --container-bg: rgba(255, 255, 255, 0.15);
+  --container-border: rgba(255, 255, 255, 0.2);
+  --container-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --container-radius: 1.5rem;
+  --container-backdrop: blur(40px) saturate(180%);
+  
+  --surface-bg: rgba(255, 255, 255, 0.12);
+  --surface-border: rgba(255, 255, 255, 0.15);
+  --surface-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  --surface-radius: 1.5rem;
+  --surface-backdrop: blur(40px) saturate(180%);
+  
+  --button-bg: rgba(255, 255, 255, 0.1);
+  --button-bg-hover: rgba(255, 255, 255, 0.2);
+  --button-bg-active: rgba(255, 255, 255, 0.25);
+  --button-border: rgba(255, 255, 255, 0.1);
+  --button-radius: 0.75rem;
+  --button-shadow: none;
+  
+  --input-bg: rgba(255, 255, 255, 0.1);
+  --input-border: rgba(255, 255, 255, 0.1);
+  --input-border-focus: transparent;
+  --input-radius: 0.75rem;
+  
+  --nav-bg-active: rgba(255, 255, 255, 0.2);
+  --nav-bg-hover: rgba(255, 255, 255, 0.1);
+  --nav-radius: 1rem;
+}
+
+/* ============================================
+   Neo-Brutalism Style
+   Kräftige Farben, harte Kanten und Schatten
+   ============================================ */
+
+[data-style="brutal"] {
+  /* Container: Solide Farben, harte schwarze Borders */
+  --container-bg: #1e1e2e;
+  --container-border: #000000;
+  --container-shadow: 6px 6px 0 #000000;
+  --container-radius: 0.5rem;
+  --container-backdrop: none;
+  
+  /* Surface: Kräftige Hintergründe */
+  --surface-bg: #2a2a3c;
+  --surface-border: #000000;
+  --surface-shadow: 4px 4px 0 #000000;
+  --surface-radius: 0.5rem;
+  --surface-backdrop: none;
+  
+  /* Buttons: Solide mit hartem Schatten */
+  --button-bg: #3a3a4c;
+  --button-bg-hover: #4a4a5c;
+  --button-bg-active: #5a5a6c;
+  --button-border: #000000;
+  --button-radius: 0.375rem;
+  --button-shadow: 3px 3px 0 #000000;
+  
+  /* Inputs: Klare Kanten */
+  --input-bg: #2a2a3c;
+  --input-border: #000000;
+  --input-border-focus: transparent;
+  --input-radius: 0.375rem;
+  
+  /* Nav Items */
+  --nav-bg-active: #3a3a4c;
+  --nav-bg-hover: #2a2a3c;
+  --nav-radius: 0.375rem;
+}
+
+/* ============================================
+   Neomorphism Style
+   Weiche, erhöhte Oberflächen mit sanften Schatten
+   ============================================ */
+
+[data-style="neo"] {
+  /* Container: Weiche Erhebungen */
+  --container-bg: #1a1a24;
+  --container-border: transparent;
+  --container-shadow: 
+    8px 8px 16px rgba(0, 0, 0, 0.4),
+    -8px -8px 16px rgba(255, 255, 255, 0.03);
+  --container-radius: 1.25rem;
+  --container-backdrop: none;
+  
+  /* Surface: Sanft erhöht */
+  --surface-bg: #1a1a24;
+  --surface-border: transparent;
+  --surface-shadow: 
+    6px 6px 12px rgba(0, 0, 0, 0.35),
+    -6px -6px 12px rgba(255, 255, 255, 0.025);
+  --surface-radius: 1.25rem;
+  --surface-backdrop: none;
+  
+  /* Buttons: Erhöht mit weichen Schatten */
+  --button-bg: #1a1a24;
+  --button-bg-hover: #1e1e28;
+  --button-bg-active: #16161e;
+  --button-border: transparent;
+  --button-radius: 0.75rem;
+  --button-shadow: 
+    4px 4px 8px rgba(0, 0, 0, 0.3),
+    -4px -4px 8px rgba(255, 255, 255, 0.02);
+  
+  /* Inputs: Vertieft (inset shadows) */
+  --input-bg: #16161e;
+  --input-border: transparent;
+  --input-border-focus: transparent;
+  --input-radius: 0.75rem;
+  
+  /* Nav Items */
+  --nav-bg-active: #1e1e28;
+  --nav-bg-hover: #1c1c26;
+  --nav-radius: 0.75rem;
+}
+
+/* Tailwind Theme Integration */
+@theme inline {
+  --color-background: var(--bg-primary);
+  --color-foreground: var(--text-primary);
+  --color-surface: var(--surface-primary);
+  --color-accent: var(--accent-primary);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+/* Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  min-height: 100dvh;
+  margin: 0;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+body > div:first-child {
+  height: 100%;
+  min-height: 100dvh;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-secondary);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+/* Selection */
+::selection {
+  background: var(--accent-primary);
+  color: var(--text-primary);
+}
+
+/* Focus Ring - Komplett deaktiviert für cleanes Design */
+:focus-visible {
+  outline: none;
+}
+
+:focus {
+  outline: none;
+}
+
+/* Entferne Focus-Ring für alle interaktiven Elemente */
+button:focus,
+a:focus,
+input:focus,
+textarea:focus,
+select:focus,
+[role="button"]:focus,
+[tabindex]:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: inherit !important;
+}
+
+/* Überschreibe ALLE Tailwind Focus-Ring Klassen */
+*:focus {
+  --tw-ring-color: transparent !important;
+  --tw-ring-offset-color: transparent !important;
+  --tw-ring-shadow: none !important;
+  outline: none !important;
+}
+
+/* Utility Classes */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+}
+
+/* Dynamic Text Color Override */
+/* Überschreibt Tailwind text-white mit der benutzerdefinierten Textfarbe */
+.text-white {
+  color: var(--text-primary) !important;
+}
+
+/* Opacity-Varianten für dynamische Textfarbe */
+[class*="text-white\/"] {
+  color: color-mix(in srgb, var(--text-primary) var(--tw-text-opacity, 100%), transparent) !important;
+}
+
+/* Spezifische Opacity-Klassen */
+.text-white\/90 { --tw-text-opacity: 90%; }
+.text-white\/80 { --tw-text-opacity: 80%; }
+.text-white\/70 { --tw-text-opacity: 70%; }
+.text-white\/60 { --tw-text-opacity: 60%; }
+.text-white\/50 { --tw-text-opacity: 50%; }
+.text-white\/40 { --tw-text-opacity: 40%; }
+.text-white\/30 { --tw-text-opacity: 30%; }
+.text-white\/20 { --tw-text-opacity: 20%; }
+.text-white\/10 { --tw-text-opacity: 10%; }
+
+/* Für Elemente, die wirklich weiß sein sollen, nutze diese Klasse */
+.text-pure-white {
+  color: #ffffff !important;
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Animation Utilities */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from { 
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--transition-base) ease-out;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft var(--transition-slow) ease-out;
+}
+
+.animate-slide-in-up {
+  animation: slideInUp var(--transition-slow) ease-out;
+}
+
+.animate-pulse-slow {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* ============================================
+   Intelligence Orb Animations
+   Partikel und Glow-Effekte für das AI-Icon
+   ============================================ */
+
+/* Breathing Animation für äußeren Ring */
+@keyframes orb-breathing {
+  0%, 100% { 
+    transform: scale(1); 
+    opacity: 0.6;
+  }
+  50% { 
+    transform: scale(1.08); 
+    opacity: 0.9;
+  }
+}
+
+.orb-breathing {
+  animation: orb-breathing 3s ease-in-out infinite;
+}
+
+/* Glow-Puls Animation */
+@keyframes orb-glow {
+  0%, 100% { 
+    box-shadow: 0 0 20px var(--accent-primary, #0ea5e9)40,
+                0 0 40px var(--accent-primary, #0ea5e9)20;
+  }
+  50% { 
+    box-shadow: 0 0 30px var(--accent-primary, #0ea5e9)60,
+                0 0 60px var(--accent-primary, #0ea5e9)30;
+  }
+}
+
+.orb-glow {
+  animation: orb-glow 2s ease-in-out infinite;
+}
+
+/* Partikel Orbit Animation */
+@keyframes particle-orbit {
+  from { transform: rotate(0deg) translateX(var(--orbit-radius, 20px)) rotate(0deg); }
+  to { transform: rotate(360deg) translateX(var(--orbit-radius, 20px)) rotate(-360deg); }
+}
+
+/* Partikel Float Animation für dekorative Partikel */
+@keyframes particle-float {
+  0%, 100% { 
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  50% { 
+    transform: translateY(-8px);
+    opacity: 0.8;
+  }
+}
+
+.particle-float {
+  animation: particle-float 3s ease-in-out infinite;
+}
+
+/* Kern-Puls Animation */
+@keyframes core-pulse {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% { 
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+.core-pulse {
+  animation: core-pulse 2s ease-in-out infinite;
+}
+
+/* ============================================
+   Chatbar Input - Dynamische Placeholder-Farbe
+   Verwendet CSS-Variable aus Theme-System
+   ============================================ */
+
+.chatbar-input::placeholder {
+  color: var(--placeholder-color, rgba(255, 255, 255, 0.5));
+  opacity: 0.5;
+}
+
+/* ============================================
+   Builder Module Preview - 100% Kreative Freiheit
+   Generierte Module sind NICHT an Theme-Styles gebunden
+   Ausnahme: Intelligence Orb & Sidebar behalten Theme
+   ============================================ */
+
+.builder-preview-container {
+  /* Isoliert generierte Module von globalen Styles */
+  all: initial;
+  display: block;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-sans);
+  color: inherit;
+  
+  /* Reset Theme-Variablen für volle Freiheit */
+  --container-bg: transparent;
+  --container-border: transparent;
+  --container-shadow: none;
+  --surface-bg: transparent;
+  --surface-border: transparent;
+  --button-bg: transparent;
+  --button-border: transparent;
+}
+
+/* Builder-Bereich verwendet original Tailwind-Farben */
+.builder-preview-container .text-white {
+  color: white !important;
+}
+
+.builder-preview-container [class*="text-white\/"] {
+  color: inherit !important;
+  --tw-text-opacity: 1;
+}
+
+/* Reset aller Text-Überschreibungen im Builder */
+.builder-preview-container * {
+  /* Volle Kontrolle über Farben */
+  --tw-text-opacity: 1;
+}
+
+/* Builder darf alle Tailwind-Klassen unverändert nutzen */
+.builder-preview-container .bg-white { background-color: white !important; }
+.builder-preview-container .bg-black { background-color: black !important; }
+.builder-preview-container .text-black { color: black !important; }
+
+/* --------------------------------------------
+   Council Chat-Bubble Markdown
+   Formatiert LLM-Antworten in Sprechblasen
+   -------------------------------------------- */
+.council-md p { margin: 0.35em 0; line-height: 1.6; }
+.council-md p:first-child { margin-top: 0; }
+.council-md p:last-child { margin-bottom: 0; }
+.council-md strong { font-weight: 600; }
+.council-md em { font-style: italic; }
+.council-md ul, .council-md ol { margin: 0.4em 0; padding-left: 1.4em; }
+.council-md li { margin: 0.15em 0; }
+.council-md li::marker { color: rgba(255,255,255,0.4); }
+.council-md h1, .council-md h2, .council-md h3,
+.council-md h4, .council-md h5, .council-md h6 {
+  font-weight: 600; margin: 0.6em 0 0.25em; line-height: 1.3;
+}
+.council-md h1 { font-size: 1.1em; }
+.council-md h2 { font-size: 1.05em; }
+.council-md h3 { font-size: 1em; }
+.council-md code {
+  background: rgba(255,255,255,0.08);
+  padding: 0.15em 0.35em;
+  border-radius: 0.3em;
+  font-size: 0.88em;
+  font-family: ui-monospace, monospace;
+}
+.council-md pre {
+  background: rgba(0,0,0,0.3);
+  padding: 0.6em 0.8em;
+  border-radius: 0.5em;
+  overflow-x: auto;
+  margin: 0.4em 0;
+}
+.council-md pre code {
+  background: none; padding: 0;
+}
+.council-md blockquote {
+  border-left: 2px solid rgba(255,255,255,0.2);
+  margin: 0.4em 0;
+  padding-left: 0.75em;
+  color: rgba(255,255,255,0.7);
+}
+.council-md hr {
+  border: none;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  margin: 0.5em 0;
+}
