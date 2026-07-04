@@ -18,6 +18,7 @@ import { labModuleTools } from './tools/lab-module-tools';
 import { agentsModuleTools } from './tools/agents-module-tools';
 import { settingsModuleTools } from './tools/settings-module-tools';
 import { marketplaceModuleTools } from './tools/marketplace-module-tools';
+import { webSearchModuleTools } from './tools/web-search-tools';
 
 const log = createLogger('ToolRegistry');
 
@@ -50,7 +51,10 @@ export function initializeToolRegistry(): void {
   toolRegistry.register(agentsModuleTools);
   toolRegistry.register(settingsModuleTools);
   toolRegistry.register(marketplaceModuleTools);
-  
+
+  // Web-Search Tool registrieren (fuer Council-Mitglieder mit aktiviertem Skill)
+  toolRegistry.register(webSearchModuleTools);
+
   toolRegistryInitialized = true;
   toolRegistry.markInitialized();
   

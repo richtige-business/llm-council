@@ -10,7 +10,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { Maximize2, MessageSquare, WandSparkles, X } from 'lucide-react';
+import { Maximize2, MessageSquare, Sparkles, WandSparkles, X } from 'lucide-react';
 
 // ESM-only Paket – muss ohne SSR geladen werden
 const CouncilMarkdown = dynamic(
@@ -30,6 +30,7 @@ import {
 import { useAgentsStore } from '../store';
 import { useAgentsSpatialStore } from '../spatial-store';
 import type { CouncilSeatMemberData } from '../types';
+import { COUNCIL_SKILL_CATALOG } from '../skills-catalog';
 
 interface MemberFormState {
   name: string;
@@ -37,6 +38,61 @@ interface MemberFormState {
   model: string;
   role: string;
   rolePrompt: string;
+  skills: string[];
+}
+
+// --------------------------------------------
+// SkillsSection - Wiederverwendbarer Block fuer
+// Skills-Checkboxen + Context-Platzhalter (Create + Edit)
+// --------------------------------------------
+
+function SkillsSection({
+  skills,
+  onToggleSkill,
+}: {
+  skills: string[];
+  onToggleSkill: (skillId: string) => void;
+}) {
+  return (
+    <div className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+      <div>
+        <div className="text-xs font-medium text-white/65">Skills</div>
+        <p className="mt-1 text-[11px] leading-relaxed text-white/40">
+          Faehigkeiten, die dieses Mitglied bei Bedarf selbst einsetzen kann.
+        </p>
+        <div className="mt-3 space-y-2">
+          {COUNCIL_SKILL_CATALOG.map((skill) => {
+            const checked = skills.includes(skill.id);
+            return (
+              <label
+                key={skill.id}
+                className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 transition-colors hover:border-white/20"
+              >
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => onToggleSkill(skill.id)}
+                  className="mt-0.5 h-4 w-4 rounded border-white/20 bg-white/10 accent-cyan-400"
+                />
+                <div className="min-w-0">
+                  <div className="text-sm font-medium text-white/85">{skill.name}</div>
+                  <div className="text-[11px] text-white/45">{skill.description}</div>
+                </div>
+              </label>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="border-t border-white/10 pt-3">
+        <div className="flex items-center gap-2 text-xs font-medium text-white/40">
+          <Sparkles className="h-3.5 w-3.5" />
+          Context
+        </div>
+        <p className="mt-1 text-[11px] text-white/30">Bald verfügbar.</p>
+      </div>
+    </div>
+  );
 }
 
 function resolveCouncilSeatLabel(seatId: string): string {
@@ -57,6 +113,7 @@ function createEmptyMemberForm(): MemberFormState {
     model: DEFAULT_AGENT_CONFIG.llmModel,
     role: '',
     rolePrompt: '',
+    skills: [],
   };
 }
 
@@ -67,6 +124,7 @@ function createFormFromMember(member: CouncilSeatMemberData): MemberFormState {
     model: normalizeOpenRouterModelId(member.model),
     role: member.role,
     rolePrompt: member.rolePrompt,
+    skills: member.skills || [],
   };
 }
 
@@ -194,6 +252,7 @@ export function CouncilSeatModalHost() {
       role: createForm.role.trim() || normalizedName,
       rolePrompt: createForm.rolePrompt.trim(),
       sourceAgentId: null,
+      skills: createForm.skills,
     });
 
     closeModal();
@@ -213,9 +272,28 @@ export function CouncilSeatModalHost() {
       role: editForm.role.trim() || normalizedName,
       rolePrompt: editForm.rolePrompt.trim(),
       sourceAgentId: null,
+      skills: editForm.skills,
     });
 
     closeModal();
+  };
+
+  const toggleCreateSkill = (skillId: string) => {
+    setCreateForm((state) => ({
+      ...state,
+      skills: state.skills.includes(skillId)
+        ? state.skills.filter((id) => id !== skillId)
+        : [...state.skills, skillId],
+    }));
+  };
+
+  const toggleEditSkill = (skillId: string) => {
+    setEditForm((state) => ({
+      ...state,
+      skills: state.skills.includes(skillId)
+        ? state.skills.filter((id) => id !== skillId)
+        : [...state.skills, skillId],
+    }));
   };
 
   return (
@@ -398,6 +476,8 @@ export function CouncilSeatModalHost() {
               />
             </label>
 
+            <SkillsSection skills={createForm.skills} onToggleSkill={toggleCreateSkill} />
+
             <div className="flex items-center justify-between gap-3 pt-2">
               <div className="flex items-center gap-3">
                 <button
@@ -523,6 +603,8 @@ export function CouncilSeatModalHost() {
                   className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-white/30 focus:border-white/25"
                 />
               </label>
+
+              <SkillsSection skills={editForm.skills} onToggleSkill={toggleEditSkill} />
 
               <div className="flex items-center justify-between gap-3 pt-1">
                 <div>

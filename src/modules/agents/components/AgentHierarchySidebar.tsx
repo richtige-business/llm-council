@@ -42,6 +42,7 @@ import {
   Settings,
   Trash2,
   X,
+  FileStack,
 } from 'lucide-react';
 import { useAgentsStore, useSelectedAgentId, useAgentSidebarCollapsed } from '../store';
 import { useThemeStyles } from '@/lib/theme';
@@ -289,6 +290,7 @@ export function AgentHierarchySidebar({
   const setSelectedCouncilSeat = useAgentsSpatialStore((state) => state.setSelectedCouncilSeat);
   const setOpenCouncilChatMember = useAgentsSpatialStore((state) => state.setOpenCouncilChatMember);
   const activeGroupRoomId = useAgentsSpatialStore((state) => state.activeGroupRoomId);
+  const setArtifactsPanelOpen = useAgentsSpatialStore((state) => state.setArtifactsPanelOpen);
   const activeCouncilDraftId = useAgentsStore((state) => state.activeCouncilDraftId);
   const { openMode, isControlActive, showTasksControl } = useAgentModeNavigation({
     navigationScope,
@@ -965,6 +967,15 @@ export function AgentHierarchySidebar({
           >
             <Layers className="h-4 w-4" />
           </button>
+
+          <button
+            onClick={() => setArtifactsPanelOpen(true)}
+            data-agent-button="agents-view-artifacts-collapsed"
+            className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg text-white/50 transition-colors hover:bg-white/10 hover:text-white"
+            title="Artifacts"
+          >
+            <FileStack className="h-4 w-4" />
+          </button>
         </div>
         {createAgentGroupPortal}
         {participantModal}
@@ -999,6 +1010,14 @@ export function AgentHierarchySidebar({
 
           <div className="flex items-center gap-1">
             <button
+              onClick={() => setArtifactsPanelOpen(true)}
+              data-agent-button="agents-view-artifacts"
+              className="flex h-6 w-6 items-center justify-center rounded text-white/40 hover:text-white/60 hover:bg-white/10 transition-colors"
+              title="Artifacts"
+            >
+              <FileStack className="h-3.5 w-3.5" />
+            </button>
+            <button
               onClick={toggleAgentSidebar}
               className="flex h-6 w-6 items-center justify-center rounded text-white/40 hover:text-white/60 hover:bg-white/10 transition-colors"
               title="Council-Panel einklappen"
@@ -1021,6 +1040,14 @@ export function AgentHierarchySidebar({
             className="w-full rounded px-2 py-1.5 text-[11px] bg-white/15 text-white"
           >
             LLM Council
+          </button>
+          <button
+            onClick={() => setArtifactsPanelOpen(true)}
+            data-agent-button="agents-view-artifacts"
+            className="mt-1 flex w-full items-center gap-1.5 rounded px-2 py-1.5 text-[11px] text-white/60 hover:bg-white/10 hover:text-white"
+          >
+            <FileStack className="h-3 w-3" />
+            Artifacts
           </button>
         </div>
       </div>

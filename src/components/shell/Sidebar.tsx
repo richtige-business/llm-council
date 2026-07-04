@@ -13,7 +13,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import * as LucideIcons from 'lucide-react';
-import { 
+import {
   Home,
   Blocks,
   X,

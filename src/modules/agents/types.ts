@@ -277,6 +277,7 @@ export interface CouncilSeatMemberData {
   role: string;                    // Kurzrolle im Council
   rolePrompt: string;              // Rollenbeschreibung / System-Prompt
   sourceAgentId?: string | null;   // Optionaler Ursprungs-Agent
+  skills?: string[];               // Aktivierte Skill-IDs (siehe skills-catalog.ts)
   createdAt: number;               // Zeitstempel
   updatedAt: number;               // Zeitstempel
 }

@@ -44,6 +44,7 @@ import {
   serializeCouncilPrompt,
 } from './council-runtime';
 import { stripTransientAttachmentFieldsFromMessages } from './lib/chat-attachments';
+import { resolveToolIdsForSkills } from './skills-catalog';
 
 type CouncilRunSnapshot = {
   draftId: string | null;
@@ -2000,6 +2001,7 @@ export const useAgentsStore = create<AgentsStore>()(
                 allSeats.filter((entry) => entry.seatId !== member.seatId)
               ),
               signal: abortController.signal,
+              toolIds: resolveToolIdsForSkills(member.skills),
               onProgress: (nextContent) => {
                 get().updateCouncilMemberMessage(member.seatId, memberMessageId, {
                   content: nextContent,
@@ -2177,6 +2179,7 @@ export const useAgentsStore = create<AgentsStore>()(
               allSeats.filter((entry) => entry.seatId !== eldest.seatId)
             ),
             signal: abortController.signal,
+            toolIds: resolveToolIdsForSkills(eldest.skills),
             onProgress: (nextContent) => {
               get().updateCouncilMemberMessage(eldest.seatId, eldestMessageId, {
                 content: nextContent,

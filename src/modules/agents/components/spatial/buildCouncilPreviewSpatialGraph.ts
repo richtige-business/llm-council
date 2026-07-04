@@ -133,15 +133,21 @@ export function computeCouncilFraming(seats: CouncilSeatDefinition[]): {
     if (seat.position.z > maxZ) maxZ = seat.position.z;
   }
 
-  // Zusaetzlicher Rand, damit die seitlichen +Buttons in der
-  // Standardansicht sicher innerhalb des Viewports liegen.
-  const buttonPadding = 4.4;
+  // Zusaetzlicher Rand, damit die seitlichen +Buttons auch bei
+  // vielen Zusatzsitzen sicher innerhalb des Viewports liegen.
+  // Zusatzsitze wandern auf dem Bogen weiter nach aussen UND
+  // (durch den abnehmenden cos(angle)) naeher an die Kamera heran,
+  // daher fliesst neben spanX auch spanZ in den Zoom-Faktor ein.
+  const buttonPadding = 6;
   const spanX = maxX + buttonPadding - (minX - buttonPadding);
+  const spanZ = maxZ - minZ;
   const centerX = (minX + maxX) / 2;
   const centerZ = (minZ + maxZ) / 2;
 
   const baseDistance = 17.0;
-  const extraDistance = Math.max(0, (spanX - 20.5) * 0.64);
+  const extraDistanceFromX = Math.max(0, (spanX - 20.5) * 0.85);
+  const extraDistanceFromZ = Math.max(0, (spanZ - 2) * 1.3);
+  const extraDistance = Math.max(extraDistanceFromX, extraDistanceFromZ);
 
   return {
     focus: {
@@ -151,7 +157,7 @@ export function computeCouncilFraming(seats: CouncilSeatDefinition[]): {
     },
     cameraOffset: {
       x: 0,
-      y: 3.1 + extraDistance * 0.12,
+      y: 3.1 + extraDistance * 0.14,
       z: baseDistance + extraDistance,
     },
   };

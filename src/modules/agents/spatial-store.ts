@@ -20,11 +20,13 @@ interface AgentsSpatialState {
   openCouncilChatMemberId: string | null; // Welcher Member-Chat gerade geöffnet ist
   speakingCouncilSeatId: string | null; // Welcher Council-Orb gerade tokenweise spricht
   openCouncilSpeechBubbleIds: Record<string, string>; // seatId -> aktuell sichtbare Speech-Bubble-Message
+  artifactsPanelOpen: boolean; // Overlay-Panel fuer Council-Ergebnis-Downloads (PDF/DOCX)
 }
 
 interface AgentsSpatialActions {
   setMode: (mode: AgentsSpatialMode) => void;
   setHubView: (view: AgentsHubView) => void;
+  setArtifactsPanelOpen: (open: boolean) => void;
   focusAgent: (agentId: string | null) => void;
   setSelectedTaskId: (taskId: string | null) => void;
   setActiveGroupRoom: (groupId: string | null) => void;
@@ -50,6 +52,7 @@ export const useAgentsSpatialStore = create<AgentsSpatialStore>((set) => ({
   openCouncilChatMemberId: null,
   speakingCouncilSeatId: null,
   openCouncilSpeechBubbleIds: {},
+  artifactsPanelOpen: false,
 
   setMode: (mode) => {
     set({ mode });
@@ -57,6 +60,10 @@ export const useAgentsSpatialStore = create<AgentsSpatialStore>((set) => ({
 
   setHubView: (view) => {
     set({ hubView: view });
+  },
+
+  setArtifactsPanelOpen: (open) => {
+    set({ artifactsPanelOpen: open });
   },
 
   focusAgent: (agentId) => {

@@ -131,6 +131,10 @@ export function buildCouncilFirstOpinionSystemPrompt(
         .join('\n')
     : '- no other members';
 
+  const skillsNote = (member.skills?.length ?? 0) > 0
+    ? '\n- You can use the web_search tool if you need current or factual information you don\'t already know. Decide yourself whether a search is necessary.'
+    : '';
+
   return `# COUNCIL STAGE 1 — FIRST OPINION
 You are "${member.name}" in the council "${councilName}".
 Your role: ${member.role || 'Council Member'}
@@ -147,7 +151,7 @@ RULES:
 - Do not mention a review phase or the "council process".
 - Do not judge the other members yet.
 - ${getCouncilLanguageInstruction()}
-- Provide a clear stance, reasoning, and a recommendation when appropriate.`;
+- Provide a clear stance, reasoning, and a recommendation when appropriate.${skillsNote}`;
 }
 
 // --------------------------------------------
@@ -391,8 +395,10 @@ export async function executeCouncilCompletionStream(options: {
   systemPrompt: string;
   onProgress?: (content: string) => void;
   signal?: AbortSignal;
+  toolIds?: string[];
 }): Promise<string> {
   const normalizedModel = normalizeOpenRouterModelId(options.model);
+  const hasTools = (options.toolIds?.length ?? 0) > 0;
   let response: Response;
 
   try {
@@ -407,7 +413,8 @@ export async function executeCouncilCompletionStream(options: {
         modelOverride: normalizedModel,
         providerOverride: resolveCouncilProvider(normalizedModel),
         systemPromptOverride: options.systemPrompt,
-        disableTools: true,
+        disableTools: !hasTools,
+        toolIds: hasTools ? options.toolIds : undefined,
       }),
       signal: options.signal,
     });

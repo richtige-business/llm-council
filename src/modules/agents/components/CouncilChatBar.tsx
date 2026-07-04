@@ -47,6 +47,8 @@ import {
   revokeImagePreviewUrls,
   stripTransientAttachmentFieldsFromImages,
 } from '../lib/chat-attachments';
+import { ArtifactExportMenu } from './ArtifactExportMenu';
+import type { CouncilRunData, CouncilSeatMemberData } from '../types';
 
 const COUNCIL_MAIN_PANEL_ID = '__council-main__';
 
@@ -89,6 +91,8 @@ interface SharedHistoryPanelProps {
   messages: ChatMessageData[];
   initialScrollMode?: 'bottom' | 'last-assistant-start';
   onClose: () => void;
+  exportRun?: CouncilRunData | null;
+  exportSeatMembers?: CouncilSeatMemberData[];
 }
 
 function SharedHistoryPanel({
@@ -100,6 +104,8 @@ function SharedHistoryPanel({
   messages,
   initialScrollMode = 'bottom',
   onClose,
+  exportRun,
+  exportSeatMembers,
 }: SharedHistoryPanelProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const messageRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -188,6 +194,14 @@ function SharedHistoryPanel({
           <span className="text-[11px] text-white/35">{subtitle}</span>
           <span className="text-[11px] text-white/30">{messages.length} messages</span>
         </div>
+        <div className="flex items-center gap-1.5">
+        {exportRun && exportRun.stage === 'completed' && exportRun.finalResponse && (
+          <ArtifactExportMenu
+            run={exportRun}
+            seatMembers={exportSeatMembers || []}
+            accentColor={accentColor}
+          />
+        )}
         <button
           onClick={onClose}
           className="flex h-6 w-6 items-center justify-center transition-colors"
@@ -202,6 +216,7 @@ function SharedHistoryPanel({
         >
           <ChevronDown className="h-3.5 w-3.5" />
         </button>
+        </div>
       </div>
 
       {/* Nachrichtenliste */}
@@ -296,6 +311,17 @@ function MemberHistoryPanel({ seatId, memberName, memberColor, onClose }: Member
 
 function MainHistoryPanel({ onClose }: { onClose: () => void }) {
   const messages = useAgentsStore((state) => state.activeCouncilDraftMainMessages);
+  const runs = useAgentsStore((state) => state.activeCouncilDraftRuns);
+  const seatMembers = useAgentsStore((state) => state.activeCouncilDraftSeatMembers);
+
+  const latestCompletedRun = useMemo(() => {
+    for (let i = runs.length - 1; i >= 0; i -= 1) {
+      if (runs[i].stage === 'completed' && runs[i].finalResponse) {
+        return runs[i];
+      }
+    }
+    return null;
+  }, [runs]);
 
   return (
     <SharedHistoryPanel
@@ -307,6 +333,8 @@ function MainHistoryPanel({ onClose }: { onClose: () => void }) {
       messages={messages}
       initialScrollMode="last-assistant-start"
       onClose={onClose}
+      exportRun={latestCompletedRun}
+      exportSeatMembers={seatMembers}
     />
   );
 }

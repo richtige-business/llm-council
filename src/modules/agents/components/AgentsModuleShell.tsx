@@ -12,6 +12,7 @@
 import dynamic from 'next/dynamic';
 import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
+import { X } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useThemeStyles } from '@/lib/theme';
@@ -24,7 +25,9 @@ import type { AgentsSpatialMode } from '../spatial-types';
 import { getCouncilStagePresentation } from '../council-stage-ui';
 import { AgentHierarchySidebar } from './AgentHierarchySidebar';
 import { ChatHistorySidebar } from './ChatHistorySidebar';
+import { ArtifactsPage } from './ArtifactsPage';
 import { CouncilSeatModalHost } from './CouncilSeatModalHost';
+import { CouncilOnboardingModal } from './CouncilOnboardingModal';
 import { CouncilChatBar } from './CouncilChatBar';
 import { FloatingAgentPanel } from './spatial/FloatingAgentPanel';
 import { AgentsSpatialOverlayHost } from './spatial/AgentsSpatialOverlayHost';
@@ -118,6 +121,7 @@ export function AgentsModuleShell({
   onEmbeddedModeChange,
 }: AgentsModuleShellProps) {
   const [showCouncilNameBar, setShowCouncilNameBar] = useState(false);
+  const [onboardingModalOpen, setOnboardingModalOpen] = useState(false);
   const router = useRouter();
   const selectedAgentId = useSelectedAgentId();
   const setSelectedAgent = useAgentsStore((state) => state.setSelectedAgent);
@@ -145,6 +149,8 @@ export function AgentsModuleShell({
   const setActiveGroupRoom = useAgentsSpatialStore((state) => state.setActiveGroupRoom);
   const activeGroupRoomId = useAgentsSpatialStore((state) => state.activeGroupRoomId);
   const selectedCouncilSeatId = useAgentsSpatialStore((state) => state.selectedCouncilSeatId);
+  const artifactsPanelOpen = useAgentsSpatialStore((state) => state.artifactsPanelOpen);
+  const setArtifactsPanelOpen = useAgentsSpatialStore((state) => state.setArtifactsPanelOpen);
   const {
     surface,
     button,
@@ -152,6 +158,7 @@ export function AgentsModuleShell({
     textColor,
     surfaceColor,
     designStyle,
+    container,
   } = useThemeStyles();
   const resolvedModeOverride =
     navigationScope === 'embedded' ? embeddedMode || modeOverride || 'chat' : modeOverride;
@@ -509,6 +516,27 @@ export function AgentsModuleShell({
           </div>
         ) : null}
 
+        {mode === 'council' && !selectedCouncilSeatId && activeCouncilDraftSeatMembers.length <= 1 ? (
+          <div className="pointer-events-none absolute inset-x-0 top-44 z-40 flex justify-center px-4">
+            <div
+              className="pointer-events-auto flex items-center gap-3 rounded-2xl border border-white/10 bg-[#0b1220]/90 px-4 py-3 shadow-[0_10px_40px_rgba(2,6,23,0.4)] backdrop-blur"
+            >
+              <span className="text-xs text-white/60">Neuer Council: Sitze manuell anlegen oder</span>
+              <button
+                type="button"
+                onClick={() => setOnboardingModalOpen(true)}
+                className="rounded-xl border border-cyan-400/20 bg-cyan-400/15 px-3.5 py-2 text-xs font-medium text-cyan-100 transition-colors hover:border-cyan-300/35 hover:bg-cyan-400/20"
+              >
+                Mit Eldest planen
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        {onboardingModalOpen ? (
+          <CouncilOnboardingModal onClose={() => setOnboardingModalOpen(false)} />
+        ) : null}
+
         {/* Agent-Kontextpanel: z-50 damit es ueber Drei-Html-Overlays liegt */}
         {showAgentPanel ? (
           <div className="pointer-events-none absolute inset-x-0 bottom-8 z-50 flex justify-center px-4">
@@ -539,6 +567,26 @@ export function AgentsModuleShell({
         </AnimatePresence>
 
         <AgentsSpatialOverlayHost mode={mode}>{children}</AgentsSpatialOverlayHost>
+
+        {artifactsPanelOpen ? (
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 top-[10%] z-[60] px-4 pb-4 md:px-5 md:pb-5">
+            <div className="pointer-events-auto mx-auto flex h-full w-full max-w-[980px] flex-col overflow-hidden rounded-2xl" style={container.base}>
+              <div className="flex items-center justify-between border-b border-white/10 px-5 py-3">
+                <span className="text-sm font-medium" style={{ color: textColor }}>Artifacts</span>
+                <button
+                  type="button"
+                  onClick={() => setArtifactsPanelOpen(false)}
+                  className="flex h-7 w-7 items-center justify-center rounded-full text-white/50 hover:bg-white/10 hover:text-white"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="min-h-0 flex-1 overflow-y-auto">
+                <ArtifactsPage />
+              </div>
+            </div>
+          </div>
+        ) : null}
       </div>
     </div>
   );
