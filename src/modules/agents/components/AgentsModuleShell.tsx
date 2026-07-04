@@ -28,6 +28,7 @@ import { ChatHistorySidebar } from './ChatHistorySidebar';
 import { ArtifactsPage } from './ArtifactsPage';
 import { CouncilSeatModalHost } from './CouncilSeatModalHost';
 import { CouncilOnboardingModal } from './CouncilOnboardingModal';
+import { CouncilPresetLibraryDropdown } from './CouncilPresetLibraryDropdown';
 import { CouncilChatBar } from './CouncilChatBar';
 import { FloatingAgentPanel } from './spatial/FloatingAgentPanel';
 import { AgentsSpatialOverlayHost } from './spatial/AgentsSpatialOverlayHost';
@@ -122,6 +123,7 @@ export function AgentsModuleShell({
 }: AgentsModuleShellProps) {
   const [showCouncilNameBar, setShowCouncilNameBar] = useState(false);
   const [onboardingModalOpen, setOnboardingModalOpen] = useState(false);
+  const [presetLibraryOpen, setPresetLibraryOpen] = useState(false);
   const router = useRouter();
   const selectedAgentId = useSelectedAgentId();
   const setSelectedAgent = useAgentsStore((state) => state.setSelectedAgent);
@@ -132,6 +134,7 @@ export function AgentsModuleShell({
   const activeCouncilDraftName = useAgentsStore((state) => state.activeCouncilDraftName);
   const activeCouncilDraftSeatMembers = useAgentsStore((state) => state.activeCouncilDraftSeatMembers);
   const activeCouncilStage = useAgentsStore((state) => state.activeCouncilStage);
+  const activeCouncilIsRunning = useAgentsStore((state) => state.activeCouncilIsRunning);
   const ensureCouncilDraft = useAgentsStore((state) => state.ensureCouncilDraft);
   const openCouncil = useAgentsStore((state) => state.openCouncil);
   const persistActiveCouncilDraft = useAgentsStore((state) => state.persistActiveCouncilDraft);
@@ -516,25 +519,45 @@ export function AgentsModuleShell({
           </div>
         ) : null}
 
-        {mode === 'council' && !selectedCouncilSeatId && activeCouncilDraftSeatMembers.length <= 1 ? (
+        {mode === 'council' && !selectedCouncilSeatId && !activeCouncilIsRunning ? (
           <div className="pointer-events-none absolute inset-x-0 top-44 z-40 flex justify-center px-4">
             <div
               className="pointer-events-auto flex items-center gap-3 rounded-2xl border border-white/10 bg-[#0b1220]/90 px-4 py-3 shadow-[0_10px_40px_rgba(2,6,23,0.4)] backdrop-blur"
             >
-              <span className="text-xs text-white/60">Neuer Council: Sitze manuell anlegen oder</span>
+              <span className="text-xs text-white/60">
+                {activeCouncilDraftSeatMembers.length <= 1
+                  ? 'Neuer Council: Sitze manuell anlegen,'
+                  : 'Weiteres Mitglied:'}
+              </span>
               <button
                 type="button"
-                onClick={() => setOnboardingModalOpen(true)}
-                className="rounded-xl border border-cyan-400/20 bg-cyan-400/15 px-3.5 py-2 text-xs font-medium text-cyan-100 transition-colors hover:border-cyan-300/35 hover:bg-cyan-400/20"
+                onClick={() => setPresetLibraryOpen(true)}
+                className="rounded-xl border border-white/10 bg-white/10 px-3.5 py-2 text-xs font-medium text-white/80 transition-colors hover:border-white/20 hover:bg-white/15"
               >
-                Mit Eldest planen
+                Aus Bibliothek hinzufügen
               </button>
+              {activeCouncilDraftSeatMembers.length <= 1 ? (
+                <>
+                  <span className="text-xs text-white/60">oder</span>
+                  <button
+                    type="button"
+                    onClick={() => setOnboardingModalOpen(true)}
+                    className="rounded-xl border border-cyan-400/20 bg-cyan-400/15 px-3.5 py-2 text-xs font-medium text-cyan-100 transition-colors hover:border-cyan-300/35 hover:bg-cyan-400/20"
+                  >
+                    Mit Eldest planen
+                  </button>
+                </>
+              ) : null}
             </div>
           </div>
         ) : null}
 
         {onboardingModalOpen ? (
           <CouncilOnboardingModal onClose={() => setOnboardingModalOpen(false)} />
+        ) : null}
+
+        {presetLibraryOpen ? (
+          <CouncilPresetLibraryDropdown onClose={() => setPresetLibraryOpen(false)} />
         ) : null}
 
         {/* Agent-Kontextpanel: z-50 damit es ueber Drei-Html-Overlays liegt */}
