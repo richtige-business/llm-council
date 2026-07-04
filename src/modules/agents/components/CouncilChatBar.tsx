@@ -554,7 +554,7 @@ export function CouncilChatBar({
           Außerhalb des Glassmorphism-Wrappers, minimaler Abstand
           ---------------------------------------- */}
       {sortedMembers.length > 0 ? (
-        <div className="mb-1.5 flex items-center gap-1.5 px-1">
+        <div className="mb-1.5 flex flex-wrap items-center justify-center gap-1.5 px-1">
           <button
             onClick={handleToggleMainHistory}
             className="relative flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-all duration-150"

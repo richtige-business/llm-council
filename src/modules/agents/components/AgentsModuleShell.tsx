@@ -520,7 +520,11 @@ export function AgentsModuleShell({
         ) : null}
 
         {mode === 'council' && !selectedCouncilSeatId && !activeCouncilIsRunning ? (
-          <div className="pointer-events-none absolute inset-x-0 top-44 z-40 flex justify-center px-4">
+          <div
+            className={`pointer-events-none absolute inset-x-0 z-40 flex justify-center px-4 ${
+              showCouncilNameBar ? 'top-44' : 'top-20'
+            }`}
+          >
             <div
               className="pointer-events-auto flex items-center gap-3 rounded-2xl border border-white/10 bg-[#0b1220]/90 px-4 py-3 shadow-[0_10px_40px_rgba(2,6,23,0.4)] backdrop-blur"
             >
