@@ -25,6 +25,15 @@ export const COUNCIL_SKILL_CATALOG: CouncilSkillDefinition[] = [
   },
 ];
 
+// Alle Skill-IDs des Katalogs — der Opt-out-Default (Skills sind immer aktiv).
+export const ALL_COUNCIL_SKILL_IDS: string[] = COUNCIL_SKILL_CATALOG.map((skill) => skill.id);
+
+// Opt-out-Modell: `undefined` = nie konfiguriert = ALLE Skills aktiv.
+// Ein Array (auch leer) ist eine explizite Auswahl — `[]` = bewusst keine Skills.
+export function resolveActiveSkillIds(skills: string[] | undefined): string[] {
+  return skills === undefined ? [...ALL_COUNCIL_SKILL_IDS] : skills;
+}
+
 export function getCouncilSkillById(skillId: string): CouncilSkillDefinition | undefined {
   return COUNCIL_SKILL_CATALOG.find((skill) => skill.id === skillId);
 }

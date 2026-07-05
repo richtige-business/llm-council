@@ -30,7 +30,7 @@ import {
 import { useAgentsStore } from '../store';
 import { useAgentsSpatialStore } from '../spatial-store';
 import type { CouncilSeatMemberData } from '../types';
-import { COUNCIL_SKILL_CATALOG } from '../skills-catalog';
+import { COUNCIL_SKILL_CATALOG, ALL_COUNCIL_SKILL_IDS } from '../skills-catalog';
 
 interface MemberFormState {
   name: string;
@@ -113,7 +113,8 @@ function createEmptyMemberForm(): MemberFormState {
     model: DEFAULT_AGENT_CONFIG.llmModel,
     role: '',
     rolePrompt: '',
-    skills: [],
+    // Opt-out: neue Mitglieder starten mit allen Skills aktiv.
+    skills: [...ALL_COUNCIL_SKILL_IDS],
   };
 }
 
@@ -124,7 +125,8 @@ function createFormFromMember(member: CouncilSeatMemberData): MemberFormState {
     model: normalizeOpenRouterModelId(member.model),
     role: member.role,
     rolePrompt: member.rolePrompt,
-    skills: member.skills || [],
+    // `undefined` (nie konfiguriert) = alle Skills an; `[]` = bewusst abgewählt.
+    skills: member.skills ?? [...ALL_COUNCIL_SKILL_IDS],
   };
 }
 
@@ -297,7 +299,7 @@ export function CouncilSeatModalHost() {
   };
 
   return (
-    <div className="absolute inset-0 z-[90] flex items-center justify-center bg-slate-950/72 px-4 py-10 backdrop-blur-md">
+    <div className="absolute inset-0 z-[90] flex items-center justify-center bg-slate-950/72 px-4 py-4 backdrop-blur-md">
       <div
         className="absolute inset-0"
         onClick={closeModal}
@@ -305,7 +307,7 @@ export function CouncilSeatModalHost() {
       />
 
       {/* Im Edit-Modus: max-w-4xl für zweispaltiges Layout mit Chatverlauf */}
-      <div className={`relative z-[1] w-full rounded-[28px] border border-white/10 bg-[#08101d]/96 p-5 shadow-[0_20px_80px_rgba(2,6,23,0.5)] backdrop-blur-xl ${view === 'edit' ? 'max-w-4xl' : 'max-w-2xl'}`}>
+      <div className={`relative z-[1] flex max-h-[calc(100dvh-2rem)] w-full flex-col overflow-y-auto rounded-[28px] border border-white/10 bg-[#08101d]/96 p-5 shadow-[0_20px_80px_rgba(2,6,23,0.5)] backdrop-blur-xl ${view === 'edit' ? 'max-w-4xl' : 'max-w-2xl'}`}>
         {/* --------------------------------------------
             Modal-Header
             Sitzkontext + schneller Close-Button

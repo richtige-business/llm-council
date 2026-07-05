@@ -44,7 +44,7 @@ import {
   serializeCouncilPrompt,
 } from './council-runtime';
 import { stripTransientAttachmentFieldsFromMessages } from './lib/chat-attachments';
-import { resolveToolIdsForSkills } from './skills-catalog';
+import { resolveToolIdsForSkills, resolveActiveSkillIds, ALL_COUNCIL_SKILL_IDS } from './skills-catalog';
 
 type CouncilRunSnapshot = {
   draftId: string | null;
@@ -2002,7 +2002,7 @@ export const useAgentsStore = create<AgentsStore>()(
                 allSeats.filter((entry) => entry.seatId !== member.seatId)
               ),
               signal: abortController.signal,
-              toolIds: resolveToolIdsForSkills(member.skills),
+              toolIds: resolveToolIdsForSkills(resolveActiveSkillIds(member.skills)),
               onProgress: (nextContent) => {
                 get().updateCouncilMemberMessage(member.seatId, memberMessageId, {
                   content: nextContent,
@@ -2180,7 +2180,7 @@ export const useAgentsStore = create<AgentsStore>()(
               allSeats.filter((entry) => entry.seatId !== eldest.seatId)
             ),
             signal: abortController.signal,
-            toolIds: resolveToolIdsForSkills(eldest.skills),
+            toolIds: resolveToolIdsForSkills(resolveActiveSkillIds(eldest.skills)),
             onProgress: (nextContent) => {
               get().updateCouncilMemberMessage(eldest.seatId, eldestMessageId, {
                 content: nextContent,
@@ -2384,7 +2384,7 @@ export const useAgentsStore = create<AgentsStore>()(
     }),
     {
       name: 'llm-council-agents-state',
-      version: 4,
+      version: 5,
 
       // ----------------------------------------
       // Store-Migration v1 → v2: Group Orchestration
@@ -2452,6 +2452,21 @@ export const useAgentsStore = create<AgentsStore>()(
           );
           state.activeCouncilDraftMemberMessages = sanitizeCouncilDraftMessages(
             state.activeCouncilDraftMemberMessages as Record<string, ChatMessageData[]> | undefined,
+          );
+        }
+
+        if (version < 5) {
+          // Opt-out-Umstellung: Skills sind jetzt standardmaessig aktiv.
+          // Bestehende Mitglieder ohne (oder mit leerer) Skill-Liste stammen aus
+          // dem alten Opt-in-Default und werden auf "alle Skills an" gehoben.
+          const enableAllSkills = (member: { skills?: string[] } | undefined) => {
+            if (member && (!member.skills || member.skills.length === 0)) {
+              member.skills = [...ALL_COUNCIL_SKILL_IDS];
+            }
+          };
+          (state.activeCouncilDraftSeatMembers as { skills?: string[] }[] | undefined)?.forEach(enableAllSkills);
+          (state.councils as { seatMembers?: { skills?: string[] }[] }[] | undefined)?.forEach((council) =>
+            council.seatMembers?.forEach(enableAllSkills),
           );
         }
 

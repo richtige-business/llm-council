@@ -15,6 +15,7 @@ import type {
   ChatMessageData,
   CouncilSeatMemberData,
 } from './types';
+import { resolveActiveSkillIds } from './skills-catalog';
 
 // --------------------------------------------
 // API-Nachricht fuer die Agent-Route
@@ -131,7 +132,7 @@ export function buildCouncilFirstOpinionSystemPrompt(
         .join('\n')
     : '- no other members';
 
-  const skillsNote = (member.skills?.length ?? 0) > 0
+  const skillsNote = resolveActiveSkillIds(member.skills).length > 0
     ? '\n- You can use the web_search tool if you need current or factual information you don\'t already know. Decide yourself whether a search is necessary.'
     : '';
 
